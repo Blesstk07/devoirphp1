@@ -34,7 +34,7 @@ require_once('../auth/session.php');
     </nav>
 
     <?php if (isset($_SESSION['user'])): ?>
-        <p>👤 Connecté : <?= $_SESSION['user']['nom_complet'] ?> (<?= $_SESSION['user']['role'] ?>)</p>
+        <p> Connecté : <?= $_SESSION['user']['nom_complet'] ?> (<?= $_SESSION['user']['role'] ?>)</p>
     <?php endif; ?>
 </header>
 
