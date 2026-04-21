@@ -1,0 +1,11 @@
+
+[
+    {
+        "identifiant":"Bless",
+        "mot_de_passe":"blesstk07",
+        "role": "super_admin",
+        "nom_complet": "Admin Principal",
+        "date_creation": "2026-04-21",
+        "actif": true
+    }
+]
