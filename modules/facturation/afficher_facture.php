@@ -7,19 +7,18 @@ require_once('../../auth/session.php');
 verifierConnexion();
 verifierRole(['caissier', 'manager', 'super_admin']);
 
-// =========================
-// CHARGER FACTURES
-// =========================
 $file = '../../data/factures.json';
 
 $factures = file_exists($file)
     ? json_decode(file_get_contents($file), true)
     : [];
 
-// =========================
-// ID FACTURE
-// =========================
 $id = $_GET['id'] ?? null;
+
+if (!$id) {
+    header("Location: ../../index.php");
+    exit;
+}
 
 $facture = null;
 
@@ -31,7 +30,7 @@ foreach ($factures as $f) {
 }
 
 if (!$facture) {
-    echo "<h2> Facture introuvable</h2>";
+    echo "<h2 style='text-align:center;color:red;'>❌ Facture introuvable</h2>";
     exit;
 }
 ?>
@@ -40,39 +39,59 @@ if (!$facture) {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Facture <?= $facture['id'] ?></title>
+    <title>Facture <?= htmlspecialchars($facture['id']) ?></title>
+
     <link rel="stylesheet" href="../../assets/css/style.css">
 
     <style>
+
         body {
             font-family: Arial;
+            background: #f4f6f9;
+            margin: 0;
             padding: 20px;
         }
 
-        .facture-box {
-            max-width: 700px;
+        .facture {
+            max-width: 800px;
             margin: auto;
-            border: 1px solid #ccc;
-            padding: 20px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        h1, h2 {
+        h1 {
             text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #555;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
-        table, th, td {
-            border: 1px solid black;
+        th {
+            background: #111827;
+            color: white;
+            padding: 10px;
         }
 
-        th, td {
-            padding: 8px;
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
             text-align: center;
+        }
+
+        tr:hover {
+            background: #f3f4f6;
         }
 
         .total {
@@ -80,31 +99,59 @@ if (!$facture) {
             text-align: right;
         }
 
-        .print-btn {
+        .total h3 {
+            color: #111827;
+        }
+
+        .actions {
             margin-top: 20px;
             text-align: center;
         }
 
-        button {
-            padding: 10px 20px;
+        button, a {
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: none;
             cursor: pointer;
+            margin: 5px;
         }
+
+        .print {
+            background: #2563eb;
+            color: white;
+        }
+
+        .back {
+            background: #111827;
+            color: white;
+        }
+
+        .print:hover {
+            background: #1d4ed8;
+        }
+
+        .back:hover {
+            background: #374151;
+        }
+
     </style>
 </head>
 
 <body>
 
-<div class="facture-box">
+<div class="facture">
 
-    <h1> FACTURE DE VENTE</h1>
+    <h1>🧾 FACTURE DE VENTE</h1>
 
-    <p><strong>ID :</strong> <?= $facture['id'] ?></p>
-    <p><strong>Date :</strong> <?= $facture['date'] ?></p>
-    <p><strong>Caissier :</strong> <?= $facture['caissier'] ?></p>
-
-    <hr>
+    <div class="info">
+        <p><strong>ID :</strong> <?= htmlspecialchars($facture['id']) ?></p>
+        <p><strong>Date :</strong> <?= htmlspecialchars($facture['date']) ?></p>
+        <p><strong>Caissier :</strong> <?= htmlspecialchars($facture['caissier']) ?></p>
+    </div>
 
     <table>
+
         <tr>
             <th>Désignation</th>
             <th>Prix unitaire</th>
@@ -112,24 +159,30 @@ if (!$facture) {
             <th>Sous-total</th>
         </tr>
 
-        <?php foreach ($facture['articles'] as $a): ?>
-            <tr>
-                <td><?= $a['nom'] ?></td>
-                <td><?= $a['prix_unitaire_ht'] ?></td>
-                <td><?= $a['quantite'] ?></td>
-                <td><?= $a['prix_unitaire_ht'] * $a['quantite'] ?></td>
-            </tr>
-        <?php endforeach; ?>
+        <?php if (!empty($facture['articles'])): ?>
+
+            <?php foreach ($facture['articles'] as $a): ?>
+                <tr>
+                    <td><?= htmlspecialchars($a['nom']) ?></td>
+                    <td><?= $a['prix_unitaire_ht'] ?></td>
+                    <td><?= $a['quantite'] ?></td>
+                    <td><?= $a['prix_unitaire_ht'] * $a['quantite'] ?></td>
+                </tr>
+            <?php endforeach; ?>
+
+        <?php endif; ?>
+
     </table>
 
     <div class="total">
         <p><strong>Total HT :</strong> <?= $facture['total_ht'] ?> CDF</p>
-        <p><strong>TVA (18%) :</strong> <?= $facture['tva'] ?> CDF</p>
-        <h3><strong>Net à payer :</strong> <?= $facture['total_ttc'] ?> CDF</h3>
+        <p><strong>TVA :</strong> <?= $facture['tva'] ?> CDF</p>
+        <h3>Net à payer : <?= $facture['total_ttc'] ?> CDF</h3>
     </div>
 
-    <div class="print-btn">
-        <button onclick="window.print()"> Imprimer facture</button>
+    <div class="actions">
+        <button class="print" onclick="window.print()">🖨 Imprimer</button>
+        <a class="back" href="../../index.php">⬅ Retour</a>
     </div>
 
 </div>

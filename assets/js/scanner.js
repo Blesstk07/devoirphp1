@@ -1,54 +1,50 @@
 let codeReader;
-let streamActive = false;
+let scanning = false;
 
-function startScanner(urlRedirect) {
+function startScanner(baseUrl) {
+
+    if (scanning) return;
+    scanning = true;
 
     codeReader = new ZXing.BrowserBarcodeReader();
-    const videoElement = document.getElementById('video');
-    const resultElement = document.getElementById('result');
 
-    console.log("Scanner lancé ");
+    codeReader.getVideoInputDevices()
+        .then((devices) => {
 
-    streamActive = true;
+            const deviceId = devices[0].deviceId;
 
-    codeReader.decodeFromVideoDevice(null, videoElement, (result, err) => {
+            codeReader.decodeFromVideoDevice(
+                deviceId,
+                "video",
+                (result, err) => {
 
-        if (!streamActive) return;
+                    if (result && scanning) {
 
-        if (result) {
+                        scanning = false;
 
-            const code = result.text;
+                        const code = result.text;
 
-            console.log("CODE DETECTÉ:", code);
+                        console.log("SCAN OK:", code);
 
-            resultElement.innerText = "Code détecté : " + code;
+                        // STOP caméra immédiatement
+                        codeReader.reset();
 
-            stopScanner(); // arrêt automatique après scan
+                        // REDIRECTION UNIQUE
+                        window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
+                    }
 
-            window.location.href = urlRedirect + "?code=" + code;
-        }
-
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
-        }
-    });
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.log("scan...");
+                    }
+                }
+            );
+        })
+        .catch(err => console.error(err));
 }
 
-// ARRÊTER LA CAMÉRA
 function stopScanner() {
-
+    scanning = false;
     if (codeReader) {
         codeReader.reset();
     }
-
-    streamActive = false;
-
-    const video = document.getElementById('video');
-
-    if (video && video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-    }
-
-    console.log("Scanner arrêté ");
 }

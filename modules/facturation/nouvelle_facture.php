@@ -13,26 +13,25 @@ if (!isset($_SESSION['facture'])) {
     $_SESSION['facture'] = [];
 }
 
-/* =========================
-    AJOUT PRODUIT (SCAN)
-========================= */
-if (isset($_GET['code'])) {
+/* ================= SCAN ================= */
+if (!empty($_GET['code'])) {
 
-    $produit = trouverProduit($_GET['code']);
+    $code = trim($_GET['code']);
+    $produit = trouverProduit($code);
 
     if ($produit) {
 
-        $trouve = false;
+        $found = false;
 
         foreach ($_SESSION['facture'] as &$item) {
             if ($item['code_barre'] === $produit['code_barre']) {
                 $item['quantite']++;
-                $trouve = true;
+                $found = true;
                 break;
             }
         }
 
-        if (!$trouve) {
+        if (!$found) {
             $_SESSION['facture'][] = [
                 "code_barre" => $produit['code_barre'],
                 "nom" => $produit['nom'],
@@ -43,9 +42,7 @@ if (isset($_GET['code'])) {
     }
 }
 
-/* =========================
-    UPDATE / DELETE PANIER
-========================= */
+/* ================= UPDATE ================= */
 if (isset($_POST['update'])) {
 
     $i = $_POST['index'];
@@ -59,72 +56,44 @@ if (isset($_POST['update'])) {
     }
 }
 
+/* ================= DELETE ================= */
 if (isset($_GET['delete'])) {
     unset($_SESSION['facture'][$_GET['delete']]);
     $_SESSION['facture'] = array_values($_SESSION['facture']);
 }
 
-/* =========================
-    STOCK UPDATE FUNCTION CALL
-========================= */
-function mettreAJourStock($code, $quantiteVendue) {
+/* ================= CALCUL ================= */
+$result = calculerFacture($_SESSION['facture']);
 
-    $file = '../../data/produits.json';
+$total_ht = $result['total_ht'];
+$tva = $result['tva'];
+$total_ttc = $result['total_ttc'];
 
-    $produits = file_exists($file)
-        ? json_decode(file_get_contents($file), true)
-        : [];
-
-    foreach ($produits as &$p) {
-
-        if ($p['code_barre'] === $code) {
-
-            $p['quantite_stock'] -= $quantiteVendue;
-
-            if ($p['quantite_stock'] < 0) {
-                $p['quantite_stock'] = 0;
-            }
-        }
-    }
-
-    file_put_contents($file, json_encode($produits, JSON_PRETTY_PRINT));
-}
-//  LOG VENTE
-foreach ($_SESSION['facture'] as $item) {
-
-    ajouterLog("VENTE", [
-        "produit" => $item['nom'],
-        "code_barre" => $item['code_barre'],
-        "quantite" => $item['quantite'],
-        "caissier" => $_SESSION['user']['identifiant']
-    ]);
-}
-
-/* =========================
-    VALIDATION FACTURE + STOCK
-========================= */
+/* ================= VALIDATION ================= */
 if (isset($_POST['valider_facture'])) {
 
     $factures = file_exists('../../data/factures.json')
         ? json_decode(file_get_contents('../../data/factures.json'), true)
         : [];
 
-    $result = calculerFacture($_SESSION['facture']);
+    $idFacture = uniqid("FAC-");
 
-    // 🔥 DECREMENT STOCK
     foreach ($_SESSION['facture'] as $item) {
         mettreAJourStock($item['code_barre'], $item['quantite']);
+        ajouterLog("VENTE", [
+            "produit" => $item['nom'],
+            "quantite" => $item['quantite'],
+            "facture" => $idFacture
+        ]);
     }
-
-    $idFacture = uniqid("FAC-");
 
     $factures[] = [
         "id" => $idFacture,
         "date" => date("Y-m-d H:i:s"),
         "articles" => $result['articles'],
-        "total_ht" => $result['total_ht'],
-        "tva" => $result['tva'],
-        "total_ttc" => $result['total_ttc'],
+        "total_ht" => $total_ht,
+        "tva" => $tva,
+        "total_ttc" => $total_ttc,
         "caissier" => $_SESSION['user']['identifiant']
     ];
 
@@ -135,87 +104,121 @@ if (isset($_POST['valider_facture'])) {
     header("Location: afficher-facture.php?id=" . $idFacture);
     exit;
 }
-
-/* =========================
-    CALCUL TEMPS RÉEL
-========================= */
-$result = calculerFacture($_SESSION['facture']);
-
-$total_ht = $result['total_ht'];
-$tva = $result['tva'];
-$total_ttc = $result['total_ttc'];
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Nouvelle facture</title>
-    <link rel="stylesheet" href="../../assets/css/style.css">
+<meta charset="UTF-8">
+<title>Nouvelle facture</title>
+
+<link rel="stylesheet" href="/TP/assets/css/style.css">
+
+<style>
+body {
+    background: #000;
+    color: white;
+    font-family: Arial;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #ff6600;
+}
+
+table {
+    width: 100%;
+    background: #111;
+    border-collapse: collapse;
+}
+
+th {
+    background: #ff6600;
+    padding: 10px;
+}
+
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+
+.btn {
+    background: linear-gradient(45deg,#ff6600,#ff3300);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+.btn:hover {
+    box-shadow: 0 0 15px #ff6600;
+}
+</style>
+
 </head>
 
 <body>
 
-<h1> Nouvelle facture</h1>
+<h1>🧾 Nouvelle facture</h1>
 
-<!-- SCANNER -->
-<h2> Scanner produit</h2>
+<h3>📷 Scanner produit</h3>
 
 <video id="video" width="300"></video>
 
-<button onclick="stopScanner()"> Stop caméra</button>
+<button class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
+    🎥 Activer caméra
+</button>
 
-<p id="result"></p>
-
-<script src="https://unpkg.com/@zxing/library@latest"></script>
-<script src="../../assets/js/scanner.js"></script>
-
-<script>
-window.onload = function () {
-    startScanner("../../modules/facturation/nouvelle_facture.php");
-};
-</script>
+<button onclick="stopScanner()" style="background:red;color:white;">
+    ⛔ Stop caméra
+</button>
 
 <hr>
 
-<!-- PANIER -->
-<h2> Panier</h2>
+<table>
 
-<table border="1" width="100%">
-    <tr>
-        <th>Produit</th>
-        <th>Prix</th>
-        <th>Qté</th>
-        <th>Sous-total</th>
-        <th>Action</th>
-    </tr>
+<tr>
+    <th>Produit</th>
+    <th>Prix</th>
+    <th>Qté</th>
+    <th>Total</th>
+    <th>Action</th>
+</tr>
 
-    <?php foreach ($_SESSION['facture'] as $i => $item): ?>
-        <tr>
-            <td><?= $item['nom'] ?></td>
-            <td><?= $item['prix_unitaire_ht'] ?></td>
-            <td>
-                <form method="POST">
-                    <input type="hidden" name="index" value="<?= $i ?>">
-                    <input type="number" name="quantite" value="<?= $item['quantite'] ?>">
-                    <button name="update">✔</button>
-                </form>
-            </td>
-            <td><?= $item['sous_total_ht'] ?></td>
-            <td><a href="?delete=<?= $i ?>">❌</a></td>
-        </tr>
-    <?php endforeach; ?>
+<?php foreach ($_SESSION['facture'] as $i => $item): ?>
+
+<tr>
+    <td><?= $item['nom'] ?></td>
+    <td><?= $item['prix_unitaire_ht'] ?></td>
+    <td>
+        <form method="POST">
+            <input type="hidden" name="index" value="<?= $i ?>">
+            <input type="number" name="quantite" value="<?= $item['quantite'] ?>">
+            <button name="update">✔</button>
+        </form>
+    </td>
+    <td><?= $item['prix_unitaire_ht'] * $item['quantite'] ?></td>
+    <td><a href="?delete=<?= $i ?>">❌</a></td>
+</tr>
+
+<?php endforeach; ?>
+
 </table>
 
-<!-- TOTAL -->
-<h3>HT : <?= $total_ht ?> CDF</h3>
-<h3>TVA : <?= $tva ?> CDF</h3>
-<h2>TTC : <?= $total_ttc ?> CDF</h2>
+<h3>Total HT : <?= $total_ht ?></h3>
+<h3>TVA : <?= $tva ?></h3>
+<h2>Total TTC : <?= $total_ttc ?></h2>
 
-<!-- VALIDATION -->
 <form method="POST">
-    <button type="submit" name="valider_facture">💾 Valider facture</button>
+    <button class="btn" type="submit" name="valider_facture">
+        💾 Valider facture
+    </button>
 </form>
+
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+<script src="/TP/assets/js/scanner.js"></script>
 
 </body>
 </html>
