@@ -8,7 +8,7 @@ function verifierLogin($id, $mot_de_passe) {
     $utilisateur = lireUtilisateurs();
 
     foreach ($utilisateur as $U) {
-        if ($u['identifiant'] === $id && password_verify($mdp, $u['mot_de_passe'])) {
+        if ($U['identifiant'] === $id && password_verify($mot_de_passe, $U['mot_de_passe'])) {
             return $U;
         }
     }

@@ -8,10 +8,18 @@
         "actif": true
     },
     {
-        "identifiant": "manager01",
+        "identifiant": "manager",
         "mot_de_passe": "$2y$10$MANAGER",
         "role": "manager",
         "nom_complet": "Gestionnaire Stock",
+        "date_creation": "2026-04-21",
+        "actif": true
+    },
+    {
+        "identifiant": "caissier",
+        "mot_de_passe": "$2y$10$CAISSIER",
+        "role": "caissier",
+        "nom_complet": "Caissier Principal",
         "date_creation": "2026-04-21",
         "actif": true
     }
