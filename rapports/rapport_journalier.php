@@ -1,74 +1,59 @@
 <?php
 require_once('../auth/session.php');
-require_once('../includes/fonctions-factures.php');
 
 verifierConnexion();
-verifierRole(['manager', 'super_admin', 'caissier']);
+verifierRole(['manager', 'super_admin']);
 
-//  date du jour
+$file = '../data/factures.json';
+
+$factures = file_exists($file)
+    ? json_decode(file_get_contents($file), true)
+    : [];
+
 $aujourdhui = date("Y-m-d");
 
-//  récupérer les factures
-$factures = lireFactures();
+$ventesJour = [];
+$totalJour = 0;
 
-$total_ventes = 0;
-$total_tva = 0;
-$nb_factures = 0;
-
-$factures_du_jour = [];
-
-//  filtrage
 foreach ($factures as $f) {
 
-    if ($f['date'] === $aujourdhui) {
+    $dateFacture = substr($f['date'], 0, 10);
 
-        $factures_du_jour[] = $f;
-
-        $total_ventes += $f['total_ttc'];
-        $total_tva += $f['tva'];
-        $nb_factures++;
+    if ($dateFacture === $aujourdhui) {
+        $ventesJour[] = $f;
+        $totalJour += $f['total_ttc'];
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Rapport journalier</title>
+    <title>Rapport Journalier</title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body>
 
-<h1> Rapport journalier</h1>
+<h1>📊 Rapport Journalier</h1>
+<h3>Date : <?= $aujourdhui ?></h3>
 
-<p><strong>Date :</strong> <?= $aujourdhui ?></p>
+<p><strong>Total ventes du jour :</strong> <?= $totalJour ?> CDF</p>
 
-<hr>
-
-<h3> Nombre de factures : <?= $nb_factures ?></h3>
-<h3> Total TVA : <?= $total_tva ?> CDF</h3>
-<h2> Total ventes : <?= $total_ventes ?> CDF</h2>
-
-<hr>
-
-<h2> Détail des factures</h2>
-
-<table border="1">
+<table border="1" width="100%">
     <tr>
         <th>ID Facture</th>
-        <th>Heure</th>
+        <th>Date</th>
         <th>Total TTC</th>
-        <th>Caissier</th>
     </tr>
 
-    <?php foreach ($factures_du_jour as $f): ?>
-    <tr>
-        <td><?= $f['id_facture'] ?></td>
-        <td><?= $f['heure'] ?></td>
-        <td><?= $f['total_ttc'] ?></td>
-        <td><?= $f['caissier'] ?></td>
-    </tr>
+    <?php foreach ($ventesJour as $f): ?>
+        <tr>
+            <td><?= $f['id'] ?></td>
+            <td><?= $f['date'] ?></td>
+            <td><?= $f['total_ttc'] ?> CDF</td>
+        </tr>
     <?php endforeach; ?>
 </table>
 

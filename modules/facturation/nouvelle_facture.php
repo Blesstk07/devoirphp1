@@ -9,34 +9,30 @@ require_once('../../includes/fonctions-factures.php');
 verifierConnexion();
 verifierRole(['caissier', 'manager', 'super_admin']);
 
-// =========================
-// SESSION FACTURE
-// =========================
 if (!isset($_SESSION['facture'])) {
     $_SESSION['facture'] = [];
 }
 
-// =========================
-// AJOUT PRODUIT (SCAN)
-// =========================
+/* =========================
+    AJOUT PRODUIT (SCAN)
+========================= */
 if (isset($_GET['code'])) {
 
-    $code = $_GET['code'];
-    $produit = trouverProduit($code);
+    $produit = trouverProduit($_GET['code']);
 
     if ($produit) {
 
-        $existe = false;
+        $trouve = false;
 
         foreach ($_SESSION['facture'] as &$item) {
-            if ($item['code_barre'] === $code) {
-                $item['quantite'] += 1;
-                $existe = true;
+            if ($item['code_barre'] === $produit['code_barre']) {
+                $item['quantite']++;
+                $trouve = true;
                 break;
             }
         }
 
-        if (!$existe) {
+        if (!$trouve) {
             $_SESSION['facture'][] = [
                 "code_barre" => $produit['code_barre'],
                 "nom" => $produit['nom'],
@@ -44,86 +40,110 @@ if (isset($_GET['code'])) {
                 "quantite" => 1
             ];
         }
-
-    } else {
-        echo "<p style='color:red;'>Le produit est introuvable </p>";
     }
 }
 
-// =========================
-// MODIFIER QUANTITÉ
-// =========================
+/* =========================
+    UPDATE / DELETE PANIER
+========================= */
 if (isset($_POST['update'])) {
 
-    $index = $_POST['index'];
-    $quantite = (int)$_POST['quantite'];
+    $i = $_POST['index'];
+    $q = (int)$_POST['quantite'];
 
-    if ($quantite > 0) {
-        $_SESSION['facture'][$index]['quantite'] = $quantite;
+    if ($q > 0) {
+        $_SESSION['facture'][$i]['quantite'] = $q;
     } else {
-        unset($_SESSION['facture'][$index]);
+        unset($_SESSION['facture'][$i]);
         $_SESSION['facture'] = array_values($_SESSION['facture']);
     }
 }
 
-// =========================
-// SUPPRIMER PRODUIT
-// =========================
 if (isset($_GET['delete'])) {
-
-    $index = $_GET['delete'];
-    unset($_SESSION['facture'][$index]);
+    unset($_SESSION['facture'][$_GET['delete']]);
     $_SESSION['facture'] = array_values($_SESSION['facture']);
 }
 
-// =========================
-// VALIDATION FACTURE (SAUVEGARDE)
-// =========================
+/* =========================
+    STOCK UPDATE FUNCTION CALL
+========================= */
+function mettreAJourStock($code, $quantiteVendue) {
+
+    $file = '../../data/produits.json';
+
+    $produits = file_exists($file)
+        ? json_decode(file_get_contents($file), true)
+        : [];
+
+    foreach ($produits as &$p) {
+
+        if ($p['code_barre'] === $code) {
+
+            $p['quantite_stock'] -= $quantiteVendue;
+
+            if ($p['quantite_stock'] < 0) {
+                $p['quantite_stock'] = 0;
+            }
+        }
+    }
+
+    file_put_contents($file, json_encode($produits, JSON_PRETTY_PRINT));
+}
+//  LOG VENTE
+foreach ($_SESSION['facture'] as $item) {
+
+    ajouterLog("VENTE", [
+        "produit" => $item['nom'],
+        "code_barre" => $item['code_barre'],
+        "quantite" => $item['quantite'],
+        "caissier" => $_SESSION['user']['identifiant']
+    ]);
+}
+
+/* =========================
+    VALIDATION FACTURE + STOCK
+========================= */
 if (isset($_POST['valider_facture'])) {
 
     $factures = file_exists('../../data/factures.json')
         ? json_decode(file_get_contents('../../data/factures.json'), true)
         : [];
 
-    $total_ht = 0;
+    $result = calculerFacture($_SESSION['facture']);
 
+    // 🔥 DECREMENT STOCK
     foreach ($_SESSION['facture'] as $item) {
-        $total_ht += $item['prix_unitaire_ht'] * $item['quantite'];
+        mettreAJourStock($item['code_barre'], $item['quantite']);
     }
 
-    $tva = $total_ht * 0.18;
-    $total_ttc = $total_ht + $tva;
+    $idFacture = uniqid("FAC-");
 
     $factures[] = [
-        "id" => uniqid(),
+        "id" => $idFacture,
         "date" => date("Y-m-d H:i:s"),
-        "articles" => $_SESSION['facture'],
-        "total_ht" => $total_ht,
-        "tva" => $tva,
-        "total_ttc" => $total_ttc,
+        "articles" => $result['articles'],
+        "total_ht" => $result['total_ht'],
+        "tva" => $result['tva'],
+        "total_ttc" => $result['total_ttc'],
         "caissier" => $_SESSION['user']['identifiant']
     ];
 
     file_put_contents('../../data/factures.json', json_encode($factures, JSON_PRETTY_PRINT));
 
-    // VIDER PANIER
     $_SESSION['facture'] = [];
 
-    echo "<script>alert('Facture validée avec succès');</script>";
+    header("Location: afficher-facture.php?id=" . $idFacture);
+    exit;
 }
 
-// =========================
-// CALCUL EN TEMPS RÉEL
-// =========================
-$total_ht = 0;
+/* =========================
+    CALCUL TEMPS RÉEL
+========================= */
+$result = calculerFacture($_SESSION['facture']);
 
-foreach ($_SESSION['facture'] as &$item) {
-    $item['sous_total_ht'] = $item['prix_unitaire_ht'] * $item['quantite'];
-    $total_ht += $item['sous_total_ht'];
-}
-
-$tva = $total_ht * 0.18;
-$total_ttc = $total_ht + $tva;
+$total_ht = $result['total_ht'];
+$tva = $result['tva'];
+$total_ttc = $result['total_ttc'];
 ?>
 
 <!DOCTYPE html>
@@ -139,11 +159,11 @@ $total_ttc = $total_ht + $tva;
 <h1> Nouvelle facture</h1>
 
 <!-- SCANNER -->
-<h2> Scanner le produit</h2>
+<h2> Scanner produit</h2>
 
 <video id="video" width="300"></video>
 
-<button onclick="stopScanner()">Stopper la caméra</button>
+<button onclick="stopScanner()"> Stop caméra</button>
 
 <p id="result"></p>
 
@@ -159,46 +179,42 @@ window.onload = function () {
 <hr>
 
 <!-- PANIER -->
-<h2> Articles</h2>
+<h2> Panier</h2>
 
 <table border="1" width="100%">
     <tr>
         <th>Produit</th>
         <th>Prix</th>
-        <th>Quantité</th>
+        <th>Qté</th>
         <th>Sous-total</th>
         <th>Action</th>
     </tr>
 
-    <?php foreach ($_SESSION['facture'] as $index => $item): ?>
+    <?php foreach ($_SESSION['facture'] as $i => $item): ?>
         <tr>
             <td><?= $item['nom'] ?></td>
             <td><?= $item['prix_unitaire_ht'] ?></td>
             <td>
                 <form method="POST">
-                    <input type="hidden" name="index" value="<?= $index ?>">
-                    <input type="number" name="quantite" value="<?= $item['quantite'] ?>" min="1">
+                    <input type="hidden" name="index" value="<?= $i ?>">
+                    <input type="number" name="quantite" value="<?= $item['quantite'] ?>">
                     <button name="update">✔</button>
                 </form>
             </td>
             <td><?= $item['sous_total_ht'] ?></td>
-            <td>
-                <a href="?delete=<?= $index ?>">❌</a>
-            </td>
+            <td><a href="?delete=<?= $i ?>">❌</a></td>
         </tr>
     <?php endforeach; ?>
 </table>
 
 <!-- TOTAL -->
-<h3>Total HT : <?= $total_ht ?> CDF</h3>
-<h3>TVA (18%) : <?= $tva ?> CDF</h3>
-<h2>Total TTC : <?= $total_ttc ?></h2>
+<h3>HT : <?= $total_ht ?> CDF</h3>
+<h3>TVA : <?= $tva ?> CDF</h3>
+<h2>TTC : <?= $total_ttc ?> CDF</h2>
 
 <!-- VALIDATION -->
 <form method="POST">
-    <button type="submit" name="valider_facture">
-        Valider la facture
-    </button>
+    <button type="submit" name="valider_facture">💾 Valider facture</button>
 </form>
 
 </body>

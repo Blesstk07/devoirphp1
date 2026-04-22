@@ -22,7 +22,30 @@ function sauvegarderProduits($produits) {
 
     file_put_contents($file, json_encode($produits, JSON_PRETTY_PRINT));
 }
+function mettreAJourStock($code, $quantiteVendue) {
 
+    $file = __DIR__ . '/../data/produits.json';
+
+    $produits = file_exists($file)
+        ? json_decode(file_get_contents($file), true)
+        : [];
+
+    foreach ($produits as &$p) {
+
+        if ($p['code_barre'] === $code) {
+
+            $p['quantite_stock'] -= $quantiteVendue;
+
+            if ($p['quantite_stock'] < 0) {
+                $p['quantite_stock'] = 0;
+            }
+
+            break;
+        }
+    }
+
+    file_put_contents($file, json_encode($produits, JSON_PRETTY_PRINT));
+}
 function trouverProduit($code) {
 
     $produits = lireProduits();

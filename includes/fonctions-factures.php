@@ -1,44 +1,16 @@
 <?php
+
 // ==============================
-// GESTION FACTURES (JSON)
+// CALCUL FACTURE CENTRALISÉ
 // ==============================
 
-/**
- * Lire toutes les factures
- */
-function lireFactures() {
-
-    $file = __DIR__ . '/../data/factures.json';
-
-    if (!file_exists($file)) {
-        return [];
-    }
-
-    $data = file_get_contents($file);
-    return json_decode($data, true) ?? [];
-}
-
-/**
- * Sauvegarder toutes les factures
- */
-function sauvegarderFactures($factures) {
-
-    $file = __DIR__ . '/../data/factures.json';
-
-    file_put_contents(
-        $file,
-        json_encode($factures, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-    );
-}
-
-/**
- * Calcul complet d'une facture
- */
-function calculerTotal($articles) {
+function calculerFacture($articles) {
 
     $total_ht = 0;
 
-    foreach ($articles as $a) {
+    foreach ($articles as &$a) {
+
+        $a['sous_total_ht'] = $a['prix_unitaire_ht'] * $a['quantite'];
         $total_ht += $a['sous_total_ht'];
     }
 
@@ -46,9 +18,28 @@ function calculerTotal($articles) {
     $total_ttc = $total_ht + $tva;
 
     return [
-        'total_ht' => $total_ht,
-        'tva' => $tva,
-        'total_ttc' => $total_ttc
+        "articles" => $articles,
+        "total_ht" => $total_ht,
+        "tva" => $tva,
+        "total_ttc" => $total_ttc
     ];
 }
-?>
+// ==============================
+// MISE À JOUR STOCK
+// ==============================
+function ajouterLog($action, $details) {
+
+    $file = __DIR__ . '/../data/logs.json';
+
+    $logs = file_exists($file)
+        ? json_decode(file_get_contents($file), true)
+        : [];
+
+    $logs[] = [
+        "date" => date("Y-m-d H:i:s"),
+        "action" => $action,
+        "details" => $details
+    ];
+
+    file_put_contents($file, json_encode($logs, JSON_PRETTY_PRINT));
+}

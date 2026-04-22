@@ -1,108 +1,138 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once('../../auth/session.php');
-require_once('../../includes/fonctions-factures.php');
 
 verifierConnexion();
 verifierRole(['caissier', 'manager', 'super_admin']);
 
-session_start();
-?>
-// Recupération de la facture en cours
-<?php
-$articles = $_SESSION['facture'] ?? [];
+// =========================
+// CHARGER FACTURES
+// =========================
+$file = '../../data/factures.json';
 
-if (empty($articles)) {
-    echo "Aucune facture en cours.";
+$factures = file_exists($file)
+    ? json_decode(file_get_contents($file), true)
+    : [];
+
+// =========================
+// ID FACTURE
+// =========================
+$id = $_GET['id'] ?? null;
+
+$facture = null;
+
+foreach ($factures as $f) {
+    if ($f['id'] === $id) {
+        $facture = $f;
+        break;
+    }
+}
+
+if (!$facture) {
+    echo "<h2> Facture introuvable</h2>";
     exit;
 }
 ?>
-// Calcul de la facture
-<?php
-$total_ht = 0;
 
-foreach ($articles as &$a) {
-    $a['sous_total_ht'] = $a['prix_unitaire_ht'] * $a['quantite'];
-    $total_ht += $a['sous_total_ht'];
-}
-
-$tva = $total_ht * 0.18;
-$total_ttc = $total_ht + $tva;
-?>
-// Pour générer l'ID de la facture
-<?php
-$id_facture = "FAC-" . date("Ymd") . "-" . rand(100, 999);
-?>
-// Pour le sauvegarde dans le dictionnaire des factures
-<?php
-$factures = json_decode(file_get_contents('../../data/factures.json'), true);
-
-if (!$factures) {
-    $factures = [];
-}
-
-$factures[] = [
-    "id_facture" => $id_facture,
-    "date" => date("Y-m-d"),
-    "heure" => date("H:i:s"),
-    "caissier" => $_SESSION['user']['identifiant'],
-    "articles" => $articles,
-    "total_ht" => $total_ht,
-    "tva" => $tva,
-    "total_ttc" => $total_ttc
-];
-
-file_put_contents('../../data/factures.json', json_encode($factures, JSON_PRETTY_PRINT));
-
-// vider session après validation
-unset($_SESSION['facture']);
-?>
-
-// L'affichage de la facture finale
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Facture</title>
+    <title>Facture <?= $facture['id'] ?></title>
     <link rel="stylesheet" href="../../assets/css/style.css">
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        .facture-box {
+            max-width: 700px;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        .total {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .print-btn {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1> La facture est validée</h1>
+<div class="facture-box">
 
-<p><strong>ID :</strong> <?= $id_facture ?></p>
-<p><strong>Date :</strong> <?= date("Y-m-d") ?></p>
-<p><strong>Heure :</strong> <?= date("H:i:s") ?></p>
+    <h1> FACTURE DE VENTE</h1>
 
-<hr>
+    <p><strong>ID :</strong> <?= $facture['id'] ?></p>
+    <p><strong>Date :</strong> <?= $facture['date'] ?></p>
+    <p><strong>Caissier :</strong> <?= $facture['caissier'] ?></p>
 
-<table border="1">
-    <tr>
-        <th>Produit</th>
-        <th>Prix</th>
-        <th>Qté</th>
-        <th>Sous-total</th>
-    </tr>
+    <hr>
 
-    <?php foreach ($articles as $a): ?>
-    <tr>
-        <td><?= $a['nom'] ?></td>
-        <td><?= $a['prix_unitaire_ht'] ?></td>
-        <td><?= $a['quantite'] ?></td>
-        <td><?= $a['sous_total_ht'] ?></td>
-    </tr>
-    <?php endforeach; ?>
-</table>
+    <table>
+        <tr>
+            <th>Désignation</th>
+            <th>Prix unitaire</th>
+            <th>Quantité</th>
+            <th>Sous-total</th>
+        </tr>
 
-<hr>
+        <?php foreach ($facture['articles'] as $a): ?>
+            <tr>
+                <td><?= $a['nom'] ?></td>
+                <td><?= $a['prix_unitaire_ht'] ?></td>
+                <td><?= $a['quantite'] ?></td>
+                <td><?= $a['prix_unitaire_ht'] * $a['quantite'] ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
 
-<h3>Total HT : <?= $total_ht ?> CDF</h3>
-<h3>TVA (18%) : <?= $tva ?> CDF</h3>
-<h2>Total TTC : <?= $total_ttc ?> CDF</h2>
+    <div class="total">
+        <p><strong>Total HT :</strong> <?= $facture['total_ht'] ?> CDF</p>
+        <p><strong>TVA (18%) :</strong> <?= $facture['tva'] ?> CDF</p>
+        <h3><strong>Net à payer :</strong> <?= $facture['total_ttc'] ?> CDF</h3>
+    </div>
 
-<br>
+    <div class="print-btn">
+        <button onclick="window.print()"> Imprimer facture</button>
+    </div>
 
-<a href="nouvelle-facture.php">Créer une nouvelle facture</a>
+</div>
 
 </body>
 </html>

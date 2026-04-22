@@ -1,32 +1,61 @@
 <?php
 require_once('../auth/session.php');
-require_once('../includes/fonctions-factures.php');
 
 verifierConnexion();
 verifierRole(['manager', 'super_admin']);
 
-//  mois actuel
-$mois = date("Y-m");
+$file = '../data/factures.json';
 
-//  factures
-$factures = lireFactures();
+$factures = file_exists($file)
+    ? json_decode(file_get_contents($file), true)
+    : [];
 
-$total_ventes = 0;
-$total_tva = 0;
-$nb_factures = 0;
+$moisActuel = date("Y-m");
 
-$factures_du_mois = [];
+$ventesMois = [];
+$totalMois = 0;
 
-//  filtrage par mois
 foreach ($factures as $f) {
 
-    if (substr($f['date'], 0, 7) === $mois) {
+    $dateFacture = substr($f['date'], 0, 7);
 
-        $factures_du_mois[] = $f;
-
-        $total_ventes += $f['total_ttc'];
-        $total_tva += $f['tva'];
-        $nb_factures++;
+    if ($dateFacture === $moisActuel) {
+        $ventesMois[] = $f;
+        $totalMois += $f['total_ttc'];
     }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport Mensuel</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body>
+
+<h1> Rapport Mensuel</h1>
+<h3>Mois : <?= $moisActuel ?></h3>
+
+<p><strong>Total ventes du mois :</strong> <?= $totalMois ?> CDF</p>
+
+<table border="1" width="100%">
+    <tr>
+        <th>ID Facture</th>
+        <th>Date</th>
+        <th>Total TTC</th>
+    </tr>
+
+    <?php foreach ($ventesMois as $f): ?>
+        <tr>
+            <td><?= $f['id'] ?></td>
+            <td><?= $f['date'] ?></td>
+            <td><?= $f['total_ttc'] ?> CDF</td>
+        </tr>
+    <?php endforeach; ?>
+</table>
+
+</body>
+</html>

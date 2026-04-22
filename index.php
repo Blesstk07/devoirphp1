@@ -1,75 +1,166 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-?>
-<?php
 require_once('auth/session.php');
-require_once('includes/fonctions-factures.php');
 require_once('includes/fonctions-produits.php');
+require_once('includes/fonctions-factures.php');
 
 verifierConnexion();
 
-$user = userConnecte();
+$user = $_SESSION['user'];
 
-//  données pour stats rapides
-$factures = lireFactures();
+// =========================
+// DONNÉES
+// =========================
 $produits = lireProduits();
 
-$nb_factures = count($factures);
-$nb_produits = count($produits);
+$factures = file_exists('data/factures.json')
+    ? json_decode(file_get_contents('data/factures.json'), true)
+    : [];
 
-//  total ventes globales
-$total_ventes = 0;
+// =========================
+// STATS GÉNÉRALES
+// =========================
+$nbProduits = count($produits);
+$nbFactures = count($factures);
 
+$totalVentes = 0;
+$ventesAujourdhui = 0;
+$aujourdhui = date("Y-m-d");
+
+$derniereFacture = null;
+
+// =========================
+// ANALYSE FACTURES
+// =========================
 foreach ($factures as $f) {
-    $total_ventes += $f['total_ttc'];
+
+    $totalVentes += $f['total_ttc'];
+
+    if (substr($f['date'], 0, 10) === $aujourdhui) {
+        $ventesAujourdhui += $f['total_ttc'];
+    }
+
+    $derniereFacture = $f;
+}
+
+// =========================
+// STOCK FAIBLE (ALERTE)
+// =========================
+$stockFaible = [];
+
+foreach ($produits as $p) {
+    if ($p['quantite_stock'] <= 5) {
+        $stockFaible[] = $p;
+    }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Caisse</title>
+    <title>Dashboard Admin</title>
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        body { font-family: Arial; background:#f4f4f4; padding:20px; }
+
+        .container { max-width:1100px; margin:auto; }
+
+        .cards { display:flex; gap:15px; }
+
+        .card {
+            flex:1;
+            background:white;
+            padding:15px;
+            border-radius:10px;
+            text-align:center;
+        }
+
+        .section {
+            background:white;
+            padding:15px;
+            margin-top:20px;
+            border-radius:10px;
+        }
+
+        .danger {
+            background:#ffdddd;
+            padding:10px;
+            border-left:5px solid red;
+        }
+
+        .good {
+            background:#ddffdd;
+            padding:10px;
+            border-left:5px solid green;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1> Système de Caisse</h1>
+<div class="container">
 
-<!--  UTILISATEUR -->
-<p>Bienvenue <strong><?= $user['nom_complet'] ?></strong></p>
-<p>Rôle : <strong><?= $user['role'] ?></strong></p>
+    <h1> Dashboard Admin</h1>
 
-<hr>
+    <p>Bienvenue <strong><?= $user['nom_complet'] ?></strong></p>
 
-<!--  STATS -->
-<h2> Statistiques rapides</h2>
+    <!-- STATS -->
+    <div class="cards">
 
-<ul>
-    <li> Factures : <?= $nb_factures ?></li>
-    <li> Produits : <?= $nb_produits ?></li>
-    <li> Ventes totales : <?= $total_ventes ?> CDF</li>
-</ul>
+        <div class="card">
+            <h2><?= $nbFactures ?></h2>
+            <p>Factures</p>
+        </div>
 
-<hr>
+        <div class="card">
+            <h2><?= $nbProduits ?></h2>
+            <p>Produits</p>
+        </div>
 
-<!--  MENU -->
-<h2> Modules</h2>
+        <div class="card">
+            <h2><?= $totalVentes ?> CDF</h2>
+            <p>Total ventes</p>
+        </div>
 
-<ul>
-    <li><a href="modules/facturation/nouvelle-facture.php"> Nouvelle facture</a></li>
-    <li><a href="modules/produits/liste.php"> Les produits</a></li>
-    <li><a href="modules/produits/enregistrer.php"> Ajouter un produit</a></li>
-    <li><a href="rapports/rapport-journalier.php"> Rapport journalier</a></li>
-    <li><a href="rapports/rapport-mensuel.php">Rapport mensuel</a></li>
-</ul>
+        <div class="card">
+            <h2><?= $ventesAujourdhui ?> CDF</h2>
+            <p>Ventes du jour</p>
+        </div>
 
-<hr>
+    </div>
 
-<!--  LOGOUT -->
-<a href="auth/logout.php" style="color:red;">Se déconnecter</a>
+    <!-- STOCK FAIBLE -->
+    <div class="section">
+        <h2> Alertes stock faible</h2>
+
+        <?php if (count($stockFaible) > 0): ?>
+
+            <?php foreach ($stockFaible as $p): ?>
+                <div class="danger">
+                    <?= $p['nom'] ?> — Stock : <?= $p['quantite_stock'] ?>
+                </div>
+            <?php endforeach; ?>
+
+        <?php else: ?>
+            <div class="good">✔ Aucun stock faible</div>
+        <?php endif; ?>
+    </div>
+
+    <!-- DERNIÈRE FACTURE -->
+    <div class="section">
+        <h2> Dernière facture</h2>
+
+        <?php if ($derniereFacture): ?>
+            <p><strong>ID :</strong> <?= $derniereFacture['id'] ?></p>
+            <p><strong>Date :</strong> <?= $derniereFacture['date'] ?></p>
+            <p><strong>Total :</strong> <?= $derniereFacture['total_ttc'] ?> CDF</p>
+        <?php else: ?>
+            <p>Aucune facture disponible</p>
+        <?php endif; ?>
+    </div>
+
+</div>
 
 </body>
 </html>

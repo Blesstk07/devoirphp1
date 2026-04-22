@@ -1,34 +1,15 @@
 <?php
-require_once('../../auth/session.php');
+require_once('../includes/fonctions-factures.php');
 
-verifierConnexion();
+// exemple d'utilisation (test)
+$articles = [
+    ["prix_unitaire_ht" => 1200, "quantite" => 2],
+    ["prix_unitaire_ht" => 500, "quantite" => 3]
+];
 
-/*
-===============================
-    FONCTION DE CALCUL FACTURE
-===============================
-*/
+$resultat = calculerFacture($articles);
 
-function calculerFacture($articles) {
-
-    $total_ht = 0;
-
-    foreach ($articles as &$item) {
-
-        // sous-total par article
-        $item['sous_total_ht'] = $item['prix_unitaire_ht'] * $item['quantite'];
-
-        $total_ht += $item['sous_total_ht'];
-    }
-
-    $tva = $total_ht * 0.18;
-    $total_ttc = $total_ht + $tva;
-
-    return [
-        "articles" => $articles,
-        "total_ht" => $total_ht,
-        "tva" => $tva,
-        "total_ttc" => $total_ttc
-    ];
-}
+echo "<pre>";
+print_r($resultat);
+echo "</pre>";
 ?>
