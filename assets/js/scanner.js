@@ -7,7 +7,7 @@ function startScanner(urlRedirect) {
     const videoElement = document.getElementById('video');
     const resultElement = document.getElementById('result');
 
-    console.log("Scanner lancé ✔");
+    console.log("Scanner lancé ");
 
     streamActive = true;
 
@@ -34,7 +34,7 @@ function startScanner(urlRedirect) {
     });
 }
 
-// 🔴 ARRÊTER LA CAMÉRA
+// ARRÊTER LA CAMÉRA
 function stopScanner() {
 
     if (codeReader) {
@@ -50,5 +50,5 @@ function stopScanner() {
         video.srcObject = null;
     }
 
-    console.log("Scanner arrêté ❌");
+    console.log("Scanner arrêté ");
 }

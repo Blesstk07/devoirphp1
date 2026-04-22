@@ -43,30 +43,14 @@ function verifierLogin($id, $mot_de_passe) {
  */
 function connecterUtilisateur($user) {
 
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
     $_SESSION['user'] = [
         'identifiant' => $user['identifiant'],
         'nom_complet' => $user['nom_complet'],
         'role' => $user['role']
     ];
-}
-
-/**
- * Vérifier rôle autorisé
- */
-function verifierRole($rolesAutorises) {
-
-    session_start();
-
-    if (!isset($_SESSION['user'])) {
-        header("Location: ../../auth/login.php");
-        exit;
-    }
-
-    if (!in_array($_SESSION['user']['role'], $rolesAutorises)) {
-        echo " Accès refusé";
-        exit;
-    }
 }
 ?>
