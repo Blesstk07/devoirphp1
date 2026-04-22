@@ -1,7 +1,7 @@
 [
     {
         "identifiant": "Bless",
-        "mot_de_passe": "$2y$10$SUPER_ADMIN",
+        "mot_de_passe": "$2y$10$yeXoAo8iJEPBrHpO28xjcO16WQpBwTUnuxJ6RoAOrGCkmVeNDFbtS",
         "role": "super_admin",
         "nom_complet": "Admin Principal",
         "date_creation": "2026-04-21",
@@ -9,7 +9,7 @@
     },
     {
         "identifiant": "manager",
-        "mot_de_passe": "$2y$10$MANAGER",
+        "mot_de_passe": "$2y$10$V8RsNNlLxvBLJyFwyhTBiOfsIYDFCr1bglV9RTZNcMN0mSZOfNOSG",
         "role": "manager",
         "nom_complet": "Gestionnaire Stock",
         "date_creation": "2026-04-21",
@@ -17,7 +17,7 @@
     },
     {
         "identifiant": "caissier",
-        "mot_de_passe": "$2y$10$CAISSIER",
+        "mot_de_passe": "$2y$10$6o2BL.7Ntph5EENVomYfd.RGlqRPeidIast97cliH9F3ov3o9ZMZ",
         "role": "caissier",
         "nom_complet": "Caissier Principal",
         "date_creation": "2026-04-21",
