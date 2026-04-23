@@ -68,7 +68,7 @@
         "nom": "Pepsi 50cl",
         "prix_unitaire_ht": 800,
         "date_expiration": "2027-03-15",
-        "quantite_stock": 92,
+        "quantite_stock": 88,
         "date_enregistrement": "2026-04-21"
     },
     {
@@ -165,6 +165,14 @@
         "prix_unitaire_ht": 500,
         "date_expiration": "2026-04-23",
         "quantite_stock": 200,
+        "date_enregistrement": "2026-04-23"
+    },
+    {
+        "code_barre": "8589509507002",
+        "nom": "Aqua Eau 700 ml",
+        "prix_unitaire_ht": 500,
+        "date_expiration": "2026-04-23",
+        "quantite_stock": 27,
         "date_enregistrement": "2026-04-23"
     }
 ]

@@ -98,5 +98,63 @@
         "tva": 288,
         "total_ttc": 1888,
         "caissier": "Bless"
+    },
+    {
+        "id": "FAC-69e9fbdb59c8d",
+        "date": "2026-04-23 11:00:43",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 2,
+                "sous_total_ht": 1600
+            }
+        ],
+        "total_ht": 1600,
+        "tva": 288,
+        "total_ttc": 1888,
+        "caissier": "Esther"
+    },
+    {
+        "id": "FAC-69ea08bb06f97",
+        "date": "2026-04-23 11:55:39",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 2,
+                "sous_total_ht": 1600
+            }
+        ],
+        "total_ht": 1600,
+        "tva": 288,
+        "total_ttc": 1888,
+        "caissier": "Bless"
+    },
+    {
+        "id": "FAC-69ea0db024623",
+        "date": "2026-04-23 12:16:48",
+        "articles": [
+            {
+                "code_barre": "8589509507002",
+                "nom": "Aqua Eau 700 ml",
+                "prix_unitaire_ht": 500,
+                "quantite": 2,
+                "sous_total_ht": 1000
+            },
+            {
+                "code_barre": "8589509507002",
+                "nom": "Aqua Eau 700 ml",
+                "prix_unitaire_ht": 500,
+                "quantite": 1,
+                "sous_total_ht": 500
+            }
+        ],
+        "total_ht": 1500,
+        "tva": 270,
+        "total_ttc": 1770,
+        "caissier": "Bless"
     }
 ]
