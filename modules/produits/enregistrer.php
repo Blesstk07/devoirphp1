@@ -8,27 +8,36 @@ require_once('../../includes/fonctions-produits.php');
 verifierConnexion();
 verifierRole(['manager', 'super_admin', 'caissier']);
 
-$code = $_GET['code'] ?? null;
+/* =========================
+   CODE BARRE (GET + POST SAFE)
+========================= */
+$code = $_GET['code'] ?? $_POST['code'] ?? '';
+$code = trim($code);
+
 $produit = null;
 $erreurs = [];
 $success = false;
 
-if (!empty($code)) {
-    $code = trim($code);
+/* =========================
+   RECHERCHE PRODUIT
+========================= */
+if ($code !== '') {
     $produit = trouverProduit($code);
 }
 
 /* =========================
-    AJOUT PRODUIT
+   AJOUT PRODUIT
 ========================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $code = trim($_POST['code']);
-    $nom = trim($_POST['nom']);
-    $prix = floatval($_POST['prix']);
-    $date = $_POST['date'];
-    $quantite = intval($_POST['quantite']);
+    $code = trim($_POST['code'] ?? '');
+    $nom = trim($_POST['nom'] ?? '');
+    $prix = floatval($_POST['prix'] ?? 0);
+    $date = $_POST['date'] ?? '';
+    $quantite = intval($_POST['quantite'] ?? 0);
 
+    /* VALIDATION */
+    if ($code === '') $erreurs[] = "Code barre manquant ❌";
     if ($nom === '') $erreurs[] = "Nom obligatoire";
     if ($prix <= 0) $erreurs[] = "Prix invalide";
     if ($quantite < 0) $erreurs[] = "Quantité invalide";
@@ -37,12 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($erreurs)) {
 
         $produits = lireProduits();
-        $produits = is_array($produits) ? $produits : [];
 
         $exists = false;
 
         foreach ($produits as $p) {
-            if ($p['code_barre'] === $code) {
+            if (($p['code_barre'] ?? '') === $code) {
                 $exists = true;
                 break;
             }
@@ -63,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = true;
 
         } else {
-            $erreurs[] = "Produit déjà existant";
+            $erreurs[] = "Produit déjà existant ❌";
         }
     }
 }
@@ -74,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <title>Enregistrer produit</title>
+
 <link rel="stylesheet" href="/TP/assets/css/style.css">
 
 <style>
@@ -81,60 +90,114 @@ body {
     background: #000;
     color: white;
     font-family: Arial;
-    padding: 20px;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 750px;
+    text-align: center;
+    margin-top: 40px;
 }
 
 .box {
-    max-width: 700px;
-    margin: auto;
     background: #111;
-    padding: 20px;
+    padding: 25px;
     border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255,102,0,0.2);
 }
 
-input, button {
+/* INPUTS */
+input {
     width: 100%;
     padding: 10px;
     margin: 6px 0;
     border-radius: 8px;
     border: none;
+    outline: none;
 }
 
+/* BUTTONS */
 .btn {
     background: linear-gradient(45deg,#ff6600,#ff3300);
     color: white;
     font-weight: bold;
     cursor: pointer;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    margin-top: 8px;
 }
 
 .btn:hover {
     box-shadow: 0 0 15px #ff6600;
 }
 
+/* CAMERA */
+.camera-box {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+video {
+    width: 260px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #ff6600;
+}
+
+/* BUTTON GROUP */
+.camera-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.stop-btn {
+    background: red;
+}
+
+/* ALERTS */
 .success {
     background: rgba(0,255,0,0.15);
     padding: 10px;
     border-left: 5px solid green;
+    margin-bottom: 10px;
 }
 
 .error {
     background: rgba(255,0,0,0.15);
     padding: 10px;
     border-left: 5px solid red;
+    margin-bottom: 10px;
+}
+
+h1 {
+    color: #ff6600;
 }
 </style>
 </head>
 
 <body>
 
+<div class="container">
+
 <div class="box">
 
 <h1>📦 Enregistrement produit</h1>
 
+<!-- SUCCESS -->
 <?php if ($success): ?>
-<div class="success">✔ Produit enregistré</div>
+<div class="success">✔ Produit enregistré avec succès</div>
 <?php endif; ?>
 
+<!-- ERRORS -->
 <?php if (!empty($erreurs)): ?>
 <div class="error">
     <?php foreach ($erreurs as $e): ?>
@@ -143,6 +206,13 @@ input, button {
 </div>
 <?php endif; ?>
 
+<!-- PRODUIT EXISTANT -->
+<?php if ($produit): ?>
+    <h3>✔ Produit trouvé</h3>
+    <p><strong><?= $produit['nom'] ?></strong></p>
+<?php endif; ?>
+
+<!-- FORM -->
 <?php if ($code && !$produit): ?>
 
 <form method="POST">
@@ -157,29 +227,28 @@ input, button {
     <button class="btn" type="submit">💾 Enregistrer</button>
 </form>
 
-<?php elseif ($produit): ?>
-
-<h3>✔ Produit déjà existant</h3>
-<p><?= $produit['nom'] ?></p>
-
 <?php endif; ?>
 
-<hr>
+<!-- SCANNER -->
+<h3 style="color:#ff6600; margin-top:20px;">📷 Scanner produit</h3>
 
-<h3>📷 Scanner produit</h3>
+<div class="camera-box">
+    <video id="video"></video>
+</div>
 
-<video id="video" width="300"></video>
+<div class="camera-buttons">
+    <button class="btn" onclick="startScanner('/TP/modules/produits/enregistrer.php')">
+        🎥 Activer caméra
+    </button>
 
-<button class="btn" onclick="startScanner('/TP/modules/produits/enregistrer.php')">
-    🎥 Activer caméra
-</button>
-
-<button onclick="stopScanner()" style="background:red;color:white;">
-    ⛔ Stop caméra
-</button>
+    <button class="btn stop-btn" onclick="stopScanner()">
+        ⛔ Stop
+    </button>
+</div>
 
 <p id="result"></p>
 
+</div>
 </div>
 
 <script src="https://unpkg.com/@zxing/library@latest"></script>

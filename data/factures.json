@@ -1,0 +1,25 @@
+[
+    {
+        "id": "FAC-69e9b5a926161",
+        "date": "2026-04-23 06:01:13",
+        "articles": [
+            {
+                "code_barre": "6009804011278",
+                "nom": "Pepsi 150cl",
+                "prix_unitaire_ht": 1500,
+                "quantite": 1
+            },
+            {
+                "code_barre": "6009804011278",
+                "nom": "Pepsi 150cl",
+                "prix_unitaire_ht": 1500,
+                "quantite": 1,
+                "sous_total_ht": 1500
+            }
+        ],
+        "total_ht": 4500,
+        "tva": 810,
+        "total_ttc": 5310,
+        "caissier": "Bless"
+    }
+]

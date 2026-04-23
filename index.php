@@ -170,7 +170,7 @@ body {
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <h2>💳 CAISSE</h2>
+        <h2>💳 Menu Principal</h2>
 
         <a href="index.php">🏠 Dashboard</a>
         <a href="modules/facturation/nouvelle_facture.php">🧾 Nouvelle facture</a>

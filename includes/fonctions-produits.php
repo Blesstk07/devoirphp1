@@ -1,65 +1,88 @@
 <?php
 // ==============================
-//  PRODUITS (VERSION STABLE)
+//  PRODUITS (VERSION PROPRE 🔥)
 // ==============================
 
+define('FICHIER_PRODUITS', __DIR__ . '/../data/produits.json');
+
+
+/* =========================
+   LIRE PRODUITS
+========================= */
 function lireProduits() {
 
-    $file = __DIR__ . '/../data/produits.json';
-
-    if (!file_exists($file)) {
+    if (!file_exists(FICHIER_PRODUITS)) {
+        file_put_contents(FICHIER_PRODUITS, json_encode([], JSON_PRETTY_PRINT));
         return [];
     }
 
-    $data = file_get_contents($file);
+    $contenu = file_get_contents(FICHIER_PRODUITS);
 
-    return json_decode($data, true) ?? [];
-}
-
-function sauvegarderProduits($produits) {
-
-    $file = __DIR__ . '/../data/produits.json';
-
-    file_put_contents($file, json_encode($produits, JSON_PRETTY_PRINT));
-}
-function mettreAJourStock($code, $quantiteVendue) {
-
-    $file = __DIR__ . '/../data/produits.json';
-
-    $produits = file_exists($file)
-        ? json_decode(file_get_contents($file), true)
-        : [];
-
-    foreach ($produits as &$p) {
-
-        if ($p['code_barre'] === $code) {
-
-            $p['quantite_stock'] -= $quantiteVendue;
-
-            if ($p['quantite_stock'] < 0) {
-                $p['quantite_stock'] = 0;
-            }
-
-            break;
-        }
+    if (empty($contenu)) {
+        return [];
     }
 
-    file_put_contents($file, json_encode($produits, JSON_PRETTY_PRINT));
+    $produits = json_decode($contenu, true);
+
+    if (!is_array($produits)) {
+        return [];
+    }
+
+    return $produits;
 }
+
+
+/* =========================
+   SAUVEGARDER PRODUITS
+========================= */
+function sauvegarderProduits($produits) {
+
+    if (!is_array($produits)) {
+        return false;
+    }
+
+    return file_put_contents(
+        FICHIER_PRODUITS,
+        json_encode($produits, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+    );
+}
+
+
+/* =========================
+   TROUVER PRODUIT
+========================= */
 function trouverProduit($code) {
 
     $produits = lireProduits();
 
-    if (!$produits) {
-        return null;
-    }
-
     foreach ($produits as $p) {
-        if ($p['code_barre'] == $code) {
+        if (($p['code_barre'] ?? '') == $code) {
             return $p;
         }
     }
 
     return null;
 }
-?>
+
+
+/* =========================
+   METTRE À JOUR STOCK
+========================= */
+function mettreAJourStock($code, $quantiteVendue) {
+
+    $produits = lireProduits();
+
+    foreach ($produits as &$p) {
+
+        if (($p['code_barre'] ?? '') == $code) {
+
+            $stock = $p['quantite_stock'] ?? 0;
+
+            $p['quantite_stock'] = max(0, $stock - $quantiteVendue);
+
+            break;
+        }
+    }
+
+    sauvegarderProduits($produits);
+}

@@ -1,166 +1,170 @@
 [
-{
-    "code_barre": "3017620422003",
-    "nom": "Nutella 400g",
-    "prix_unitaire_ht": 4500,
-    "date_expiration": "2026-12-31",
-    "quantite_stock": 30,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "5449000133328",
-    "nom": "Pepsi 150cl",
-    "prix_unitaire_ht": 1500,
-    "date_expiration": "2027-03-01",
-    "quantite_stock": 120,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "5449000000995",
-    "nom": "Mirinda Orange 150cl",
-    "prix_unitaire_ht": 1500,
-    "date_expiration": "2027-03-10",
-    "quantite_stock": 110,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "7622210449283",
-    "nom": "Biscuits Maria",
-    "prix_unitaire_ht": 1500,
-    "date_expiration": "2027-01-15",
-    "quantite_stock": 60,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "6194002500026",
-    "nom": "Savon Pureline",
-    "prix_unitaire_ht": 2000,
-    "date_expiration": "2028-01-01",
-    "quantite_stock": 200,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "8901030874299",
-    "nom": "Huile végétale 15L",
-    "prix_unitaire_ht": 60000,
-    "date_expiration": "2026-11-30",
-    "quantite_stock": 75,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "5449000054227",
-    "nom": "Mirinda Orange 33cl",
-    "prix_unitaire_ht": 800,
-    "date_expiration": "2027-02-20",
-    "quantite_stock": 90,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "3014260214631",
-    "nom": "Gateau",
-    "prix_unitaire_ht": 5000,
-    "date_expiration": "2026-10-10",
-    "quantite_stock": 50,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "5449000000889",
-    "nom": "Pepsi 75cl",
-    "prix_unitaire_ht": 800,
-    "date_expiration": "2027-03-15",
-    "quantite_stock": 100,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "5449000000551",
-    "nom": "Eau minérale 75cl",
-    "prix_unitaire_ht": 600,
-    "date_expiration": "2028-01-01",
-    "quantite_stock": 300,
-    "date_enregistrement": "2026-04-21"
-},
-
-{
-    "code_barre": "1000000000001",
-    "nom": "Riz 25kg",
-    "prix_unitaire_ht": 62500,
-    "date_expiration": "2027-06-01",
-    "quantite_stock": 40,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "1000000000002",
-    "nom": "Sucre 5kg",
-    "prix_unitaire_ht": 7800,
-    "date_expiration": "2027-05-01",
-    "quantite_stock": 90,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "1000000000003",
-    "nom": "Farine 50kg",
-    "prix_unitaire_ht": 71600,
-    "date_expiration": "2027-04-01",
-    "quantite_stock": 85,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "1000000000004",
-    "nom": "Spaghetti 800 gr",
-    "prix_unitaire_ht": 1200,
-    "date_expiration": "2027-08-01",
-    "quantite_stock": 70,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "1000000000005",
-    "nom": "Tomates en boîte 500 gr",
-    "prix_unitaire_ht": 900,
-    "date_expiration": "2027-09-01",
-    "quantite_stock": 60,
-    "date_enregistrement": "2026-04-21"
-},
-
-{
-    "code_barre": "2000000000001",
-    "nom": "Savon liquide Monganga 1l",
-    "prix_unitaire_ht": 2500,
-    "date_expiration": "2028-01-01",
-    "quantite_stock": 55,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "2000000000002",
-    "nom": "Dentifrice Flodent 200 gr",
-    "prix_unitaire_ht": 1500,
-    "date_expiration": "2028-01-01",
-    "quantite_stock": 80,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "2000000000003",
-    "nom": "Brosse à dents",
-    "prix_unitaire_ht": 700,
-    "date_expiration": "2029-01-01",
-    "quantite_stock": 120,
-    "date_enregistrement": "2026-04-21"
-},
-
-{
-    "code_barre": "3000000000001",
-    "nom": "Chocolat noir Milka 300gr",
-    "prix_unitaire_ht": 5000,
-    "date_expiration": "2027-12-01",
-    "quantite_stock": 45,
-    "date_enregistrement": "2026-04-21"
-},
-{
-    "code_barre": "3000000000002",
-    "nom": "Yaourt Dolait",
-    "prix_unitaire_ht": 1200,
-    "date_expiration": "2027-07-01",
-    "quantite_stock": 150,
-    "date_enregistrement": "2026-04-21"
-}
-
+    {
+        "code_barre": "3017620422003",
+        "nom": "Nutella 400g",
+        "prix_unitaire_ht": 4500,
+        "date_expiration": "2026-12-31",
+        "quantite_stock": 30,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "6009804011278",
+        "nom": "Pepsi 150cl",
+        "prix_unitaire_ht": 1500,
+        "date_expiration": "2027-03-01",
+        "quantite_stock": 117,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "6009804011155",
+        "nom": "Mirinda Orange 150cl",
+        "prix_unitaire_ht": 1500,
+        "date_expiration": "2027-03-10",
+        "quantite_stock": 110,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "7622210449283",
+        "nom": "Biscuits Maria",
+        "prix_unitaire_ht": 1500,
+        "date_expiration": "2027-01-15",
+        "quantite_stock": 60,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "6194002500026",
+        "nom": "Savon Pureline",
+        "prix_unitaire_ht": 2000,
+        "date_expiration": "2028-01-01",
+        "quantite_stock": 200,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "8901030874299",
+        "nom": "Huile végétale 15L",
+        "prix_unitaire_ht": 60000,
+        "date_expiration": "2026-11-30",
+        "quantite_stock": 75,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "5449000054227",
+        "nom": "Mirinda Orange 33cl",
+        "prix_unitaire_ht": 800,
+        "date_expiration": "2027-02-20",
+        "quantite_stock": 90,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "3014260214631",
+        "nom": "Gateau",
+        "prix_unitaire_ht": 5000,
+        "date_expiration": "2026-10-10",
+        "quantite_stock": 50,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "5449000000889",
+        "nom": "Pepsi 75cl",
+        "prix_unitaire_ht": 800,
+        "date_expiration": "2027-03-15",
+        "quantite_stock": 100,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "5449000000551",
+        "nom": "Eau minérale 75cl",
+        "prix_unitaire_ht": 600,
+        "date_expiration": "2028-01-01",
+        "quantite_stock": 300,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "1000000000001",
+        "nom": "Riz 25kg",
+        "prix_unitaire_ht": 62500,
+        "date_expiration": "2027-06-01",
+        "quantite_stock": 40,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "1000000000002",
+        "nom": "Sucre 5kg",
+        "prix_unitaire_ht": 7800,
+        "date_expiration": "2027-05-01",
+        "quantite_stock": 90,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "1000000000003",
+        "nom": "Farine 50kg",
+        "prix_unitaire_ht": 71600,
+        "date_expiration": "2027-04-01",
+        "quantite_stock": 85,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "1000000000004",
+        "nom": "Spaghetti 800 gr",
+        "prix_unitaire_ht": 1200,
+        "date_expiration": "2027-08-01",
+        "quantite_stock": 70,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "1000000000005",
+        "nom": "Tomates en boîte 500 gr",
+        "prix_unitaire_ht": 900,
+        "date_expiration": "2027-09-01",
+        "quantite_stock": 60,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "2000000000001",
+        "nom": "Savon liquide Monganga 1l",
+        "prix_unitaire_ht": 2500,
+        "date_expiration": "2028-01-01",
+        "quantite_stock": 55,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "2000000000002",
+        "nom": "Dentifrice Flodent 200 gr",
+        "prix_unitaire_ht": 1500,
+        "date_expiration": "2028-01-01",
+        "quantite_stock": 80,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "2000000000003",
+        "nom": "Brosse à dents",
+        "prix_unitaire_ht": 700,
+        "date_expiration": "2029-01-01",
+        "quantite_stock": 120,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "3000000000001",
+        "nom": "Chocolat noir Milka 300gr",
+        "prix_unitaire_ht": 5000,
+        "date_expiration": "2027-12-01",
+        "quantite_stock": 45,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "3000000000002",
+        "nom": "Yaourt Dolait",
+        "prix_unitaire_ht": 1200,
+        "date_expiration": "2027-07-01",
+        "quantite_stock": 150,
+        "date_enregistrement": "2026-04-21"
+    },
+    {
+        "code_barre": "92495227",
+        "nom": "Azzur Eau minérale",
+        "prix_unitaire_ht": 500,
+        "date_expiration": "2026-04-23",
+        "quantite_stock": 200,
+        "date_enregistrement": "2026-04-23"
+    }
 ]
