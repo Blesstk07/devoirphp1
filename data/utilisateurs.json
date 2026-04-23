@@ -1,26 +1,26 @@
 [
     {
         "identifiant": "Bless",
-        "mot_de_passe": "$2y$10$6OZDDmtA5O7TxXXty86sDOCkwz8nXfIz.jA376L97bLInEKg/zqJy",
+        "mot_de_passe": "$2y$10$6OZDDmtA5O7TxXXty86sDOCkwz8nXfIz.jA376L97bLInEKg\/zqJy",
         "role": "super_admin",
-        "nom_complet": "Admin Principal",
+        "nom_complet": "Bless, l'Admin Principal",
         "date_creation": "2026-04-21",
         "actif": true
     },
     {
-        "identifiant": "manager",
-        "mot_de_passe": "$2y$10$q8.sqBQPMi/xMlWJO1TC4uQ1bvOV2WI8MC/mzDGJUewdrSpb3vrOi",
-        "role": "manager",
-        "nom_complet": "Gestionnaire Stock",
-        "date_creation": "2026-04-21",
-        "actif": true
-    },
-    {
-        "identifiant": "caissier",
-        "mot_de_passe": "$2y$10$XU/l2Yub.f95J6OWbo.EDeq3ymTticv6OuvLDU6QxpjzjI1XMNtVe",
+        "identifiant": "Rubis",
+        "mot_de_passe": "$2y$10$vvRSqHBFf5uuagt9TYTh5e8yGjQ8dWRztvx4L7bA\/3fFNbe4ig3ci",
         "role": "caissier",
-        "nom_complet": "Caissier Principal",
-        "date_creation": "2026-04-21",
-        "actif": true
+        "nom_complet": "Rubis, le Caissier Principal",
+        "date_creation": "2026-04-23",
+        "actif": 1
+    },
+    {
+        "identifiant": "Esther",
+        "mot_de_passe": "$2y$10$Nd1GJKYhlHnJsKKZsPG\/L.ngKW07dd1FU9yy6sGwujDP.jLMC\/Cjq",
+        "role": "manager",
+        "nom_complet": "Esther, la Manager Principale",
+        "date_creation": "2026-04-23",
+        "actif": 1
     }
 ]

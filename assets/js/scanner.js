@@ -1,10 +1,13 @@
 let codeReader;
 let scanning = false;
+let scanLocked = false; //  verrou anti double scan
 
 function startScanner(baseUrl) {
 
     if (scanning) return;
+
     scanning = true;
+    scanLocked = false;
 
     codeReader = new ZXing.BrowserBarcodeReader();
 
@@ -18,19 +21,23 @@ function startScanner(baseUrl) {
                 "video",
                 (result, err) => {
 
+                    //  SI déjà scanné → ignore
+                    if (scanLocked) return;
+
                     if (result && scanning) {
 
-                        scanning = false;
+                        scanLocked = true; //  verrou actif
 
                         const code = result.text;
-
                         console.log("SCAN OK:", code);
 
-                        // STOP caméra immédiatement
-                        codeReader.reset();
+                        // STOP caméra
+                        stopScanner();
 
-                        // REDIRECTION UNIQUE
-                        window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
+                        //  petite pause pour éviter double déclenchement
+                        setTimeout(() => {
+                            window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
+                        }, 300);
                     }
 
                     if (err && !(err instanceof ZXing.NotFoundException)) {
@@ -44,6 +51,8 @@ function startScanner(baseUrl) {
 
 function stopScanner() {
     scanning = false;
+    scanLocked = true; //  bloque tout
+
     if (codeReader) {
         codeReader.reset();
     }

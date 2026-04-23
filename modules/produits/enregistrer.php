@@ -6,7 +6,7 @@ require_once('../../auth/session.php');
 require_once('../../includes/fonctions-produits.php');
 
 verifierConnexion();
-verifierRole(['manager', 'super_admin', 'caissier']);
+verifierRole(['manager', 'super_admin']);
 
 /* =========================
    CODE BARRE (GET + POST SAFE)

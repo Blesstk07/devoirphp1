@@ -220,18 +220,18 @@ td, th {
 <!-- GAUCHE -->
 <div class="left">
 
-<h1 style="color:#ff6600;">🧾 Nouvelle facture</h1>
+<h1 style="color:#ff6600;"> Nouvelle facture</h1>
 
 <div class="camera-box">
 
     <video id="video"></video><br>
 
     <button class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
-        🎥 Activer caméra
+        Activer la caméra
     </button>
 
     <button class="btn btn-danger" onclick="stopScanner()">
-        ⛔ Stop caméra
+        Stopper la caméra
     </button>
 
 </div>
@@ -315,7 +315,7 @@ td, th {
 
 <hr>
 
-<p style="text-align:center;">Merci de votre visite !</p>
+<p style="text-align:center;">Merci de votre visite et à bientôt!</p>
 
 </div>
 

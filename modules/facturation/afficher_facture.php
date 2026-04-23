@@ -142,7 +142,7 @@ if (!$facture) {
 
 <div class="facture">
 
-    <h1>🧾 FACTURE DE VENTE</h1>
+    <h1>FACTURE DE VENTE</h1>
 
     <div class="info">
         <p><strong>ID :</strong> <?= htmlspecialchars($facture['id']) ?></p>
@@ -181,8 +181,8 @@ if (!$facture) {
     </div>
 
     <div class="actions">
-        <button class="print" onclick="window.print()">🖨 Imprimer</button>
-        <a class="back" href="../../index.php">⬅ Retour</a>
+        <button class="print" onclick="window.print()">🖨 Imprimer la facture</button>
+        <a class="back" href="../../index.php"> Retour au dashboard</a>
     </div>
 
 </div>
