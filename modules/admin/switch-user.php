@@ -15,6 +15,8 @@ if (!$id) {
     exit;
 }
 
+$id = trim($id);
+
 $users = lireUtilisateurs();
 
 if (!is_array($users)) {
@@ -27,7 +29,8 @@ $userFound = null;
 // RECHERCHE USER
 // =========================
 foreach ($users as $u) {
-    if ($u['identifiant'] === $id) {
+
+    if (isset($u['identifiant']) && trim($u['identifiant']) === $id) {
         $userFound = $u;
         break;
     }
@@ -38,15 +41,22 @@ foreach ($users as $u) {
 // =========================
 if ($userFound) {
 
+    // sécurité minimale
+    if (!isset($userFound['role'])) {
+        header("Location: /TP/modules/admin/gestion_compte.php?error=invalid_user");
+        exit;
+    }
+
+    session_regenerate_id(true); // 🔐 sécurité
+
     $_SESSION['user'] = [
-        'identifiant' => $userFound['identifiant'],
-        'nom_complet' => $userFound['nom_complet'],
-        'role' => $userFound['role']
+        'identifiant'  => $userFound['identifiant'],
+        'nom_complet'  => $userFound['nom_complet'],
+        'role'         => strtolower(trim($userFound['role']))
     ];
 
     header("Location: /TP/index.php?switched=1");
     exit;
-
 }
 
 // =========================
@@ -54,3 +64,4 @@ if ($userFound) {
 // =========================
 header("Location: /TP/modules/admin/gestion_compte.php?error=user_not_found");
 exit;
+?>

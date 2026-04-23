@@ -2,7 +2,7 @@
 require_once('../auth/session.php');
 
 verifierConnexion();
-verifierRole(['manager', 'super_admin']);
+verifierRole(['super_admin']);
 
 $file = '../data/factures.json';
 

@@ -64,11 +64,11 @@
         "date_enregistrement": "2026-04-21"
     },
     {
-        "code_barre": "5449000000889",
-        "nom": "Pepsi 75cl",
+        "code_barre": "6009804011223",
+        "nom": "Pepsi 50cl",
         "prix_unitaire_ht": 800,
         "date_expiration": "2027-03-15",
-        "quantite_stock": 100,
+        "quantite_stock": 98,
         "date_enregistrement": "2026-04-21"
     },
     {

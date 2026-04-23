@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-// 🔐 Vider toutes les variables de session
+//  Vider toutes les variables de session
 $_SESSION = [];
 
-// 🍪 Supprimer le cookie de session si présent
+//  Supprimer les cookies de sessions si présent
 if (ini_get("session.use_cookies")) {
 
     $params = session_get_cookie_params();
@@ -20,10 +20,10 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// 💣 Détruire la session
+//  Détruire la session
 session_destroy();
 
-// 🔄 Redirection vers login
+
 header("Location: ../auth/login.php");
 exit;
 ?>

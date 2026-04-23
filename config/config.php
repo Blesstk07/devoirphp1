@@ -13,7 +13,7 @@ define('TAUX_TVA', 0.18);
 define('DEVISE', 'CDF');
 
 //  Infos du système
-define('NOM_BOUTIQUE', 'Super Marché');
+define('NOM_BOUTIQUE', 'Super Marché Code Runner');
 
 //  Format date/heure
 define('FORMAT_DATE', 'Y-m-d');

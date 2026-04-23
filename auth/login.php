@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 require_once('../auth/session.php');
 require_once('../includes/fonctions-auth.php');
 
-// déjà connecté
+// Si on est déjà connecté
 if (isset($_SESSION['user'])) {
     header("Location: ../index.php");
     exit;
@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <title>Connexion</title>
 
-    <!-- CSS GLOBAL -->
     <link rel="stylesheet" href="/TP/assets/css/style.css">
 
     <!-- CSS LOCAL LOGIN -->
