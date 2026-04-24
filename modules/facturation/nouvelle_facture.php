@@ -55,7 +55,7 @@ if (isset($_POST['update'])) {
     }
 }
 
-/* ================= DELETE ================= */
+/* ================= SUPPRIMER ================= */
 if (isset($_GET['delete'])) {
     unset($_SESSION['facture'][$_GET['delete']]);
     $_SESSION['facture'] = array_values($_SESSION['facture']);
@@ -129,12 +129,12 @@ body {
 
 /* GAUCHE */
 .left {
-    flex: 2;
+    flex: 5;
 }
 
 /* DROITE (ticket) */
 .right {
-    flex: 1;
+    flex: 4;
 }
 
 /* CAMERA */
