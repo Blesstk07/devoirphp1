@@ -9,6 +9,7 @@ require_once('../../includes/fonctions-factures.php');
 verifierConnexion();
 verifierRole(['caissier', 'manager', 'super_admin']);
 
+/* ================= INIT ================= */
 if (!isset($_SESSION['facture'])) {
     $_SESSION['facture'] = [];
 }
@@ -23,9 +24,11 @@ if (!empty($_GET['code'])) {
 
         $found = false;
 
-        foreach ($_SESSION['facture'] as &$item) {
+        foreach ($_SESSION['facture'] as $index => $item) {
+
             if ($item['code_barre'] === $produit['code_barre']) {
-                $item['quantite']++;
+
+                $_SESSION['facture'][$index]['quantite']++;
                 $found = true;
                 break;
             }
@@ -44,6 +47,7 @@ if (!empty($_GET['code'])) {
 
 /* ================= UPDATE ================= */
 if (isset($_POST['update'])) {
+
     $i = $_POST['index'];
     $q = (int)$_POST['quantite'];
 
@@ -55,8 +59,9 @@ if (isset($_POST['update'])) {
     }
 }
 
-/* ================= SUPPRIMER ================= */
+/* ================= DELETE ================= */
 if (isset($_GET['delete'])) {
+
     unset($_SESSION['facture'][$_GET['delete']]);
     $_SESSION['facture'] = array_values($_SESSION['facture']);
 }
@@ -68,6 +73,7 @@ if (isset($_POST['vider'])) {
 
 /* ================= CALCUL ================= */
 $result = calculerFacture($_SESSION['facture']);
+
 $total_ht = $result['total_ht'];
 $tva = $result['tva'];
 $total_ttc = $result['total_ttc'];
@@ -75,16 +81,32 @@ $total_ttc = $result['total_ttc'];
 /* ================= VALIDATION ================= */
 if (isset($_POST['valider_facture'])) {
 
-    $factures = file_exists('../../data/factures.json')
-        ? json_decode(file_get_contents('../../data/factures.json'), true)
+    $file = '../../data/factures.json';
+
+    $factures = file_exists($file)
+        ? json_decode(file_get_contents($file), true)
         : [];
 
-    $idFacture = uniqid("FAC-");
+    if (!is_array($factures)) $factures = [];
 
+    /* ===== ID PERSONNALISÉ ===== */
+    $dateJour = date("Ymd");
+    $compteur = 1;
+
+    foreach ($factures as $f) {
+        if (strpos($f['id'], "FAC-$dateJour") === 0) {
+            $compteur++;
+        }
+    }
+
+    $idFacture = "FAC-$dateJour-" . str_pad($compteur, 3, "0", STR_PAD_LEFT);
+
+    /* ===== STOCK ===== */
     foreach ($_SESSION['facture'] as $item) {
         mettreAJourStock($item['code_barre'], $item['quantite']);
     }
 
+    /* ===== ENREGISTREMENT ===== */
     $factures[] = [
         "id" => $idFacture,
         "date" => date("Y-m-d H:i:s"),
@@ -95,7 +117,7 @@ if (isset($_POST['valider_facture'])) {
         "caissier" => $_SESSION['user']['identifiant']
     ];
 
-    file_put_contents('../../data/factures.json', json_encode($factures, JSON_PRETTY_PRINT));
+    file_put_contents($file, json_encode($factures, JSON_PRETTY_PRINT));
 
     $_SESSION['facture'] = [];
 
@@ -117,24 +139,29 @@ body {
     background: #000;
     color: white;
     font-family: Arial;
+    display: flex;
+    justify-content: center;
 }
 
 .container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 20px;
+    max-width: 1000px;
+    width: 100%;
+    margin-top: 30px;
     display: flex;
     gap: 20px;
 }
 
 /* GAUCHE */
 .left {
-    flex: 5;
+    flex: 2;
+    background: #111;
+    padding: 15px;
+    border-radius: 10px;
 }
 
-/* DROITE (ticket) */
+/* DROITE */
 .right {
-    flex: 4;
+    flex: 1;
 }
 
 /* CAMERA */
@@ -150,6 +177,7 @@ video {
     border-radius: 10px;
 }
 
+/* BUTTON */
 .btn {
     background: linear-gradient(45deg,#ff6600,#ff3300);
     color: white;
@@ -181,22 +209,13 @@ td, th {
     border-bottom: 1px solid #333;
 }
 
-/* 🎟 TICKET STYLE */
+/* TICKET */
 .ticket {
     background: white;
     color: black;
     padding: 15px;
     border-radius: 10px;
     font-family: monospace;
-}
-
-.ticket h3 {
-    text-align: center;
-}
-
-.ticket hr {
-    border: none;
-    border-top: 1px dashed black;
 }
 
 .ticket-line {
@@ -207,10 +226,8 @@ td, th {
 
 .total {
     font-weight: bold;
-    font-size: 16px;
 }
 </style>
-
 </head>
 
 <body>
@@ -220,18 +237,18 @@ td, th {
 <!-- GAUCHE -->
 <div class="left">
 
-<h1 style="color:#ff6600;"> Nouvelle facture</h1>
+<h1 style="color:#ff6600;text-align:center;">🧾 Nouvelle facture</h1>
 
 <div class="camera-box">
 
     <video id="video"></video><br>
 
     <button class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
-        Activer la caméra
+        🎥 Activer
     </button>
 
     <button class="btn btn-danger" onclick="stopScanner()">
-        Stopper la caméra
+        ⛔ Stop
     </button>
 
 </div>
@@ -263,37 +280,28 @@ td, th {
 
 </table>
 
-<br>
-
 <form method="POST">
-    <button class="btn" name="valider_facture">💾 Valider la facture</button>
-    <button class="btn btn-danger" name="vider">🗑 Supprimer la facture</button>
+    <button class="btn" name="valider_facture">💾 Valider</button>
+    <button class="btn btn-danger" name="vider">🗑 Vider</button>
 </form>
 
 </div>
 
-<!-- DROITE : TICKET -->
+<!-- DROITE -->
 <div class="right">
 
 <div class="ticket">
 
-<h3>Super Marché CodeRunner</h3>
-<p><?= date("d/m/Y H:i") ?></p>
+<h3 style="text-align:center;">Super Marché</h3>
+<p style="text-align:center;"><?= date("d/m/Y H:i") ?></p>
 
 <hr>
 
 <?php foreach ($_SESSION['facture'] as $item): ?>
-
 <div class="ticket-line">
     <span><?= substr($item['nom'],0,10) ?></span>
     <span><?= $item['quantite'] ?> x <?= $item['prix_unitaire_ht'] ?></span>
 </div>
-
-<div class="ticket-line">
-    <span></span>
-    <span><?= $item['quantite'] * $item['prix_unitaire_ht'] ?></span>
-</div>
-
 <?php endforeach; ?>
 
 <hr>
@@ -312,10 +320,6 @@ td, th {
     <span>TOTAL</span>
     <span><?= $total_ttc ?> CDF</span>
 </div>
-
-<hr>
-
-<p style="text-align:center;">Merci de votre visite et à bientôt!</p>
 
 </div>
 

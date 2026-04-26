@@ -68,7 +68,7 @@
         "nom": "Pepsi 50cl",
         "prix_unitaire_ht": 800,
         "date_expiration": "2027-03-15",
-        "quantite_stock": 88,
+        "quantite_stock": 84,
         "date_enregistrement": "2026-04-21"
     },
     {
@@ -182,5 +182,13 @@
         "date_expiration": "2026-04-24",
         "quantite_stock": 40,
         "date_enregistrement": "2026-04-24"
+    },
+    {
+        "code_barre": "6009879794663",
+        "nom": "Zest Jus 500 ml",
+        "prix_unitaire_ht": 1000,
+        "date_expiration": "2026-04-25",
+        "quantite_stock": 48,
+        "date_enregistrement": "2026-04-25"
     }
 ]

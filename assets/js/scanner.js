@@ -1,18 +1,22 @@
 let codeReader;
 let scanning = false;
-let scanLocked = false; //  verrou anti double scan
+let lastScan = null;
+let scanTimeout = null;
 
 function startScanner(baseUrl) {
 
     if (scanning) return;
-
     scanning = true;
-    scanLocked = false;
 
     codeReader = new ZXing.BrowserBarcodeReader();
 
     codeReader.getVideoInputDevices()
         .then((devices) => {
+
+            if (devices.length === 0) {
+                alert("Aucune caméra détectée");
+                return;
+            }
 
             const deviceId = devices[0].deviceId;
 
@@ -21,27 +25,34 @@ function startScanner(baseUrl) {
                 "video",
                 (result, err) => {
 
-                    //  SI déjà scanné → ignore
-                    if (scanLocked) return;
-
                     if (result && scanning) {
 
-                        scanLocked = true; //  verrou actif
-
                         const code = result.text;
+
+                        // 🔒 ANTI DOUBLE SCAN
+                        if (code === lastScan) {
+                            return;
+                        }
+
+                        lastScan = code;
+
                         console.log("SCAN OK:", code);
+
+                        // ⏳ Bloque pendant 1 seconde
+                        clearTimeout(scanTimeout);
+                        scanTimeout = setTimeout(() => {
+                            lastScan = null;
+                        }, 1000);
 
                         // STOP caméra
                         stopScanner();
 
-                        //  petite pause pour éviter double déclenchement
-                        setTimeout(() => {
-                            window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
-                        }, 300);
+                        // REDIRECTION
+                        window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
                     }
 
                     if (err && !(err instanceof ZXing.NotFoundException)) {
-                        console.log("scan...");
+                        console.log(err);
                     }
                 }
             );
@@ -51,7 +62,6 @@ function startScanner(baseUrl) {
 
 function stopScanner() {
     scanning = false;
-    scanLocked = true; //  bloque tout
 
     if (codeReader) {
         codeReader.reset();

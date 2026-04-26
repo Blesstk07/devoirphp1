@@ -156,5 +156,56 @@
         "tva": 270,
         "total_ttc": 1770,
         "caissier": "Bless"
+    },
+    {
+        "id": "FAC-69ed0e568bc06",
+        "date": "2026-04-25 18:56:22",
+        "articles": [
+            {
+                "code_barre": "6009879794663",
+                "nom": "Zest Jus 500 ml",
+                "prix_unitaire_ht": 1000,
+                "quantite": 2,
+                "sous_total_ht": 2000
+            }
+        ],
+        "total_ht": 2000,
+        "tva": 360,
+        "total_ttc": 2360,
+        "caissier": "Bless"
+    },
+    {
+        "id": "FAC-20260426-001",
+        "date": "2026-04-26 17:13:48",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 2,
+                "sous_total_ht": 1600
+            }
+        ],
+        "total_ht": 1600,
+        "tva": 288,
+        "total_ttc": 1888,
+        "caissier": "Bless"
+    },
+    {
+        "id": "FAC-20260426-002",
+        "date": "2026-04-26 17:16:55",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 2,
+                "sous_total_ht": 1600
+            }
+        ],
+        "total_ht": 1600,
+        "tva": 288,
+        "total_ttc": 1888,
+        "caissier": "Bless"
     }
 ]
