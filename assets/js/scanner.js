@@ -1,69 +1,78 @@
-let codeReader;
 let scanning = false;
-let lastScan = null;
-let scanTimeout = null;
+let lastCode = null;
 
 function startScanner(baseUrl) {
 
+    console.log("START SCANNER");
+
     if (scanning) return;
     scanning = true;
+    lastCode = null;
 
-    codeReader = new ZXing.BrowserBarcodeReader();
+    if (typeof Quagga === "undefined") {
+        alert("Quagga non chargé !");
+        return;
+    }
 
-    codeReader.getVideoInputDevices()
-        .then((devices) => {
-
-            if (devices.length === 0) {
-                alert("Aucune caméra détectée");
-                return;
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector("#scanner-container"),
+            constraints: {
+                facingMode: "environment"
             }
+        },
+        decoder: {
+            readers: [
+                "ean_reader",
+                "code_128_reader",
+                "ean_8_reader"
+            ]
+        }
+    }, function (err) {
 
-            const deviceId = devices[0].deviceId;
+        if (err) {
+            console.error(err);
+            scanning = false;
+            return;
+        }
 
-            codeReader.decodeFromVideoDevice(
-                deviceId,
-                "video",
-                (result, err) => {
+        Quagga.start();
+        console.log("CAMERA STARTED");
+    });
 
-                    if (result && scanning) {
+    Quagga.offDetected(); // 🔥 important reset events
 
-                        const code = result.text;
+    Quagga.onDetected(function (data) {
 
-                        // 🔒 ANTI DOUBLE SCAN
-                        if (code === lastScan) {
-                            return;
-                        }
+        if (!scanning) return;
 
-                        lastScan = code;
+        const code = data.codeResult.code;
 
-                        console.log("SCAN OK:", code);
+        if (code === lastCode) return;
 
-                        // ⏳ Bloque pendant 1 seconde
-                        clearTimeout(scanTimeout);
-                        scanTimeout = setTimeout(() => {
-                            lastScan = null;
-                        }, 1000);
+        lastCode = code;
+        scanning = false;
 
-                        // STOP caméra
-                        stopScanner();
+        console.log("SCAN:", code);
 
-                        // REDIRECTION
-                        window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
-                    }
+        Quagga.stop();
 
-                    if (err && !(err instanceof ZXing.NotFoundException)) {
-                        console.log(err);
-                    }
-                }
-            );
-        })
-        .catch(err => console.error(err));
+        setTimeout(() => {
+            window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
+        }, 200);
+    });
 }
 
 function stopScanner() {
-    scanning = false;
 
-    if (codeReader) {
-        codeReader.reset();
+    console.log("STOP SCANNER");
+
+    scanning = false;
+    lastCode = null;
+
+    if (typeof Quagga !== "undefined") {
+        Quagga.stop();
     }
 }

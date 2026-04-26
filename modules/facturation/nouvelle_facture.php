@@ -9,37 +9,22 @@ require_once('../../includes/fonctions-factures.php');
 verifierConnexion();
 verifierRole(['caissier', 'manager', 'super_admin']);
 
-/* ================= INIT ================= */
 if (!isset($_SESSION['facture'])) {
     $_SESSION['facture'] = [];
 }
 
-/* 🔒 ANTI DOUBLE SCAN (SESSION) */
 if (!isset($_SESSION['last_scan'])) {
-    $_SESSION['last_scan'] = [
-        "code" => null,
-        "time" => 0
-    ];
+    $_SESSION['last_scan'] = '';
 }
 
 /* ================= SCAN ================= */
 if (!empty($_GET['code'])) {
 
     $code = trim($_GET['code']);
-    $now = time();
 
-    // 🔥 BLOQUE DOUBLE SCAN
-    if (
-        $_SESSION['last_scan']['code'] === $code &&
-        ($now - $_SESSION['last_scan']['time']) < 2
-    ) {
-        // on ignore
-    } else {
+    if ($_SESSION['last_scan'] !== $code) {
 
-        $_SESSION['last_scan'] = [
-            "code" => $code,
-            "time" => $now
-        ];
+        $_SESSION['last_scan'] = $code;
 
         $produit = trouverProduit($code);
 
@@ -47,15 +32,15 @@ if (!empty($_GET['code'])) {
 
             $found = false;
 
-            foreach ($_SESSION['facture'] as $index => $item) {
-
+            foreach ($_SESSION['facture'] as &$item) {
                 if ($item['code_barre'] === $produit['code_barre']) {
-
-                    $_SESSION['facture'][$index]['quantite']++;
+                    $item['quantite']++;
                     $found = true;
                     break;
                 }
             }
+
+            unset($item);
 
             if (!$found) {
                 $_SESSION['facture'][] = [
@@ -71,7 +56,6 @@ if (!empty($_GET['code'])) {
 
 /* ================= UPDATE ================= */
 if (isset($_POST['update'])) {
-
     $i = $_POST['index'];
     $q = (int)$_POST['quantite'];
 
@@ -92,11 +76,11 @@ if (isset($_GET['delete'])) {
 /* ================= VIDER ================= */
 if (isset($_POST['vider'])) {
     $_SESSION['facture'] = [];
+    $_SESSION['last_scan'] = '';
 }
 
 /* ================= CALCUL ================= */
 $result = calculerFacture($_SESSION['facture']);
-
 $total_ht = $result['total_ht'];
 $tva = $result['tva'];
 $total_ttc = $result['total_ttc'];
@@ -110,26 +94,12 @@ if (isset($_POST['valider_facture'])) {
         ? json_decode(file_get_contents($file), true)
         : [];
 
-    if (!is_array($factures)) $factures = [];
+    $idFacture = "FAC-" . date("Ymd-His") . "-" . rand(100,999);
 
-    /* 🔥 ID PERSONNALISÉ */
-    $dateJour = date("Ymd");
-    $compteur = 1;
-
-    foreach ($factures as $f) {
-        if (strpos($f['id'], "FAC-$dateJour") === 0) {
-            $compteur++;
-        }
-    }
-
-    $idFacture = "FAC-$dateJour-" . str_pad($compteur, 3, "0", STR_PAD_LEFT);
-
-    /* STOCK */
-    foreach ($_SESSION['facture'] as $item) {
+    foreach ($result['articles'] as $item) {
         mettreAJourStock($item['code_barre'], $item['quantite']);
     }
 
-    /* SAVE */
     $factures[] = [
         "id" => $idFacture,
         "date" => date("Y-m-d H:i:s"),
@@ -143,6 +113,7 @@ if (isset($_POST['valider_facture'])) {
     file_put_contents($file, json_encode($factures, JSON_PRETTY_PRINT));
 
     $_SESSION['facture'] = [];
+    $_SESSION['last_scan'] = '';
 
     header("Location: /TP/modules/facturation/afficher_facture.php?id=" . $idFacture);
     exit;
@@ -157,49 +128,64 @@ if (isset($_POST['valider_facture'])) {
 
 <style>
 body {
-    background: #000;
-    color: white;
+    margin: 0;
     font-family: Arial;
-    display: flex;
-    justify-content: center;
+    background: #0b0b0b;
+    color: white;
 }
 
 .container {
-    width: 1000px;
-    margin-top: 30px;
     display: flex;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
     gap: 20px;
 }
 
-.left {
-    flex: 2;
-    background: #111;
-    padding: 15px;
+.left { flex: 2; }
+.right { flex: 1; }
+
+#video {
+    width: 300px;
+    height: 220px;
+    border: 2px solid #ff6600;
     border-radius: 10px;
+    overflow: hidden;
 }
 
-.right {
-    flex: 1;
-}
-
-video {
-    width: 250px;
-    border: 2px solid orange;
+.camera-box {
+    text-align: center;
+    margin-bottom: 10px;
 }
 
 .btn {
-    background: orange;
-    padding: 10px;
+    background: #ff6600;
     border: none;
+    padding: 10px 15px;
     margin: 5px;
+    border-radius: 8px;
+    color: white;
     cursor: pointer;
 }
 
-.ticket {
-    background: white;
-    color: black;
+.btn-danger {
+    background: red;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #111;
+}
+
+th {
+    background: #ff6600;
+}
+
+td, th {
     padding: 10px;
-    font-family: monospace;
+    text-align: center;
+    border-bottom: 1px solid #333;
 }
 </style>
 </head>
@@ -210,53 +196,74 @@ video {
 
 <div class="left">
 
-<h2>Nouvelle facture</h2>
+<h2>🧾 Nouvelle facture</h2>
 
-<video id="video"></video><br>
+<div class="camera-box">
 
-<button class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
-Scanner
-</button>
+    <!-- IMPORTANT: container propre -->
+    <div id="scanner-container" style="width:320px;height:240px;margin:auto;border:2px solid #ff6600;border-radius:10px;"></div>
 
-<button class="btn" onclick="stopScanner()">Stop</button>
+    <button type="button" class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
+        🎥 Activer caméra
+    </button>
 
-<table border="1" width="100%">
+    <button type="button" class="btn btn-danger" onclick="stopScanner()">
+        ⛔ Stop caméra
+    </button>
+
+</div>
+
+<table>
 <tr>
-<th>Produit</th>
-<th>Qté</th>
-<th>Total</th>
+    <th>Produit</th>
+    <th>Prix</th>
+    <th>Qté</th>
+    <th>Total</th>
+    <th></th>
 </tr>
 
-<?php foreach ($_SESSION['facture'] as $item): ?>
+<?php foreach ($_SESSION['facture'] as $i => $item): ?>
 <tr>
-<td><?= $item['nom'] ?></td>
-<td><?= $item['quantite'] ?></td>
-<td><?= $item['prix_unitaire_ht'] * $item['quantite'] ?></td>
+    <td><?= $item['nom'] ?></td>
+    <td><?= $item['prix_unitaire_ht'] ?></td>
+    <td>
+        <form method="POST">
+            <input type="hidden" name="index" value="<?= $i ?>">
+            <input type="number" name="quantite" value="<?= $item['quantite'] ?>">
+            <button name="update">✔</button>
+        </form>
+    </td>
+    <td><?= $item['prix_unitaire_ht'] * $item['quantite'] ?></td>
+    <td><a href="?delete=<?= $i ?>" style="color:red;">❌</a></td>
 </tr>
 <?php endforeach; ?>
 
 </table>
 
+<br>
+
 <form method="POST">
-<button name="valider_facture">Valider</button>
-<button name="vider">Vider</button>
+    <button class="btn" name="valider_facture">💾 Valider</button>
+    <button class="btn btn-danger" name="vider">🗑 Vider</button>
 </form>
 
 </div>
 
 <div class="right">
 
-<div class="ticket">
+<div style="background:white;color:black;padding:15px;border-radius:10px;">
 
 <h3>Ticket</h3>
 
 <?php foreach ($_SESSION['facture'] as $item): ?>
-<p><?= $item['nom'] ?> x<?= $item['quantite'] ?></p>
+<div>
+<?= $item['nom'] ?> — <?= $item['quantite'] ?> x <?= $item['prix_unitaire_ht'] ?>
+</div>
 <?php endforeach; ?>
 
 <hr>
 
-<p>Total: <?= $total_ttc ?> CDF</p>
+<strong>Total: <?= $total_ttc ?> CDF</strong>
 
 </div>
 
@@ -264,7 +271,7 @@ Scanner
 
 </div>
 
-<script src="https://unpkg.com/@zxing/library@latest"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
 <script src="/TP/assets/js/scanner.js"></script>
 
 </body>
