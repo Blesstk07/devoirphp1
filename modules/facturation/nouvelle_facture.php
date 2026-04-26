@@ -14,33 +14,57 @@ if (!isset($_SESSION['facture'])) {
     $_SESSION['facture'] = [];
 }
 
+/* 🔒 ANTI DOUBLE SCAN (SESSION) */
+if (!isset($_SESSION['last_scan'])) {
+    $_SESSION['last_scan'] = [
+        "code" => null,
+        "time" => 0
+    ];
+}
+
 /* ================= SCAN ================= */
 if (!empty($_GET['code'])) {
 
     $code = trim($_GET['code']);
-    $produit = trouverProduit($code);
+    $now = time();
 
-    if ($produit) {
+    // 🔥 BLOQUE DOUBLE SCAN
+    if (
+        $_SESSION['last_scan']['code'] === $code &&
+        ($now - $_SESSION['last_scan']['time']) < 2
+    ) {
+        // on ignore
+    } else {
 
-        $found = false;
+        $_SESSION['last_scan'] = [
+            "code" => $code,
+            "time" => $now
+        ];
 
-        foreach ($_SESSION['facture'] as $index => $item) {
+        $produit = trouverProduit($code);
 
-            if ($item['code_barre'] === $produit['code_barre']) {
+        if ($produit) {
 
-                $_SESSION['facture'][$index]['quantite']++;
-                $found = true;
-                break;
+            $found = false;
+
+            foreach ($_SESSION['facture'] as $index => $item) {
+
+                if ($item['code_barre'] === $produit['code_barre']) {
+
+                    $_SESSION['facture'][$index]['quantite']++;
+                    $found = true;
+                    break;
+                }
             }
-        }
 
-        if (!$found) {
-            $_SESSION['facture'][] = [
-                "code_barre" => $produit['code_barre'],
-                "nom" => $produit['nom'],
-                "prix_unitaire_ht" => $produit['prix_unitaire_ht'],
-                "quantite" => 1
-            ];
+            if (!$found) {
+                $_SESSION['facture'][] = [
+                    "code_barre" => $produit['code_barre'],
+                    "nom" => $produit['nom'],
+                    "prix_unitaire_ht" => $produit['prix_unitaire_ht'],
+                    "quantite" => 1
+                ];
+            }
         }
     }
 }
@@ -61,7 +85,6 @@ if (isset($_POST['update'])) {
 
 /* ================= DELETE ================= */
 if (isset($_GET['delete'])) {
-
     unset($_SESSION['facture'][$_GET['delete']]);
     $_SESSION['facture'] = array_values($_SESSION['facture']);
 }
@@ -89,7 +112,7 @@ if (isset($_POST['valider_facture'])) {
 
     if (!is_array($factures)) $factures = [];
 
-    /* ===== ID PERSONNALISÉ ===== */
+    /* 🔥 ID PERSONNALISÉ */
     $dateJour = date("Ymd");
     $compteur = 1;
 
@@ -101,12 +124,12 @@ if (isset($_POST['valider_facture'])) {
 
     $idFacture = "FAC-$dateJour-" . str_pad($compteur, 3, "0", STR_PAD_LEFT);
 
-    /* ===== STOCK ===== */
+    /* STOCK */
     foreach ($_SESSION['facture'] as $item) {
         mettreAJourStock($item['code_barre'], $item['quantite']);
     }
 
-    /* ===== ENREGISTREMENT ===== */
+    /* SAVE */
     $factures[] = [
         "id" => $idFacture,
         "date" => date("Y-m-d H:i:s"),
@@ -132,8 +155,6 @@ if (isset($_POST['valider_facture'])) {
 <meta charset="UTF-8">
 <title>Nouvelle facture</title>
 
-<link rel="stylesheet" href="/TP/assets/css/style.css">
-
 <style>
 body {
     background: #000;
@@ -144,14 +165,12 @@ body {
 }
 
 .container {
-    max-width: 1000px;
-    width: 100%;
+    width: 1000px;
     margin-top: 30px;
     display: flex;
     gap: 20px;
 }
 
-/* GAUCHE */
 .left {
     flex: 2;
     background: #111;
@@ -159,73 +178,28 @@ body {
     border-radius: 10px;
 }
 
-/* DROITE */
 .right {
     flex: 1;
 }
 
-/* CAMERA */
-.camera-box {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
 video {
     width: 250px;
-    height: 200px;
-    border: 2px solid #ff6600;
-    border-radius: 10px;
+    border: 2px solid orange;
 }
 
-/* BUTTON */
 .btn {
-    background: linear-gradient(45deg,#ff6600,#ff3300);
-    color: white;
+    background: orange;
     padding: 10px;
-    border-radius: 8px;
     border: none;
     margin: 5px;
     cursor: pointer;
 }
 
-.btn-danger {
-    background: red;
-}
-
-/* TABLE */
-table {
-    width: 100%;
-    background: #111;
-    border-collapse: collapse;
-}
-
-th {
-    background: #ff6600;
-}
-
-td, th {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #333;
-}
-
-/* TICKET */
 .ticket {
     background: white;
     color: black;
-    padding: 15px;
-    border-radius: 10px;
+    padding: 10px;
     font-family: monospace;
-}
-
-.ticket-line {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-}
-
-.total {
-    font-weight: bold;
 }
 </style>
 </head>
@@ -234,92 +208,55 @@ td, th {
 
 <div class="container">
 
-<!-- GAUCHE -->
 <div class="left">
 
-<h1 style="color:#ff6600;text-align:center;">🧾 Nouvelle facture</h1>
+<h2>Nouvelle facture</h2>
 
-<div class="camera-box">
+<video id="video"></video><br>
 
-    <video id="video"></video><br>
+<button class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
+Scanner
+</button>
 
-    <button class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
-        🎥 Activer
-    </button>
+<button class="btn" onclick="stopScanner()">Stop</button>
 
-    <button class="btn btn-danger" onclick="stopScanner()">
-        ⛔ Stop
-    </button>
-
-</div>
-
-<table>
+<table border="1" width="100%">
 <tr>
-    <th>Produit</th>
-    <th>Prix</th>
-    <th>Qté</th>
-    <th>Total</th>
-    <th></th>
+<th>Produit</th>
+<th>Qté</th>
+<th>Total</th>
 </tr>
 
-<?php foreach ($_SESSION['facture'] as $i => $item): ?>
+<?php foreach ($_SESSION['facture'] as $item): ?>
 <tr>
-    <td><?= $item['nom'] ?></td>
-    <td><?= $item['prix_unitaire_ht'] ?></td>
-    <td>
-        <form method="POST">
-            <input type="hidden" name="index" value="<?= $i ?>">
-            <input type="number" name="quantite" value="<?= $item['quantite'] ?>">
-            <button name="update">✔</button>
-        </form>
-    </td>
-    <td><?= $item['prix_unitaire_ht'] * $item['quantite'] ?></td>
-    <td><a href="?delete=<?= $i ?>" style="color:red;">❌</a></td>
+<td><?= $item['nom'] ?></td>
+<td><?= $item['quantite'] ?></td>
+<td><?= $item['prix_unitaire_ht'] * $item['quantite'] ?></td>
 </tr>
 <?php endforeach; ?>
 
 </table>
 
 <form method="POST">
-    <button class="btn" name="valider_facture">💾 Valider</button>
-    <button class="btn btn-danger" name="vider">🗑 Vider</button>
+<button name="valider_facture">Valider</button>
+<button name="vider">Vider</button>
 </form>
 
 </div>
 
-<!-- DROITE -->
 <div class="right">
 
 <div class="ticket">
 
-<h3 style="text-align:center;">Super Marché</h3>
-<p style="text-align:center;"><?= date("d/m/Y H:i") ?></p>
-
-<hr>
+<h3>Ticket</h3>
 
 <?php foreach ($_SESSION['facture'] as $item): ?>
-<div class="ticket-line">
-    <span><?= substr($item['nom'],0,10) ?></span>
-    <span><?= $item['quantite'] ?> x <?= $item['prix_unitaire_ht'] ?></span>
-</div>
+<p><?= $item['nom'] ?> x<?= $item['quantite'] ?></p>
 <?php endforeach; ?>
 
 <hr>
 
-<div class="ticket-line">
-    <span>HT</span>
-    <span><?= $total_ht ?></span>
-</div>
-
-<div class="ticket-line">
-    <span>TVA</span>
-    <span><?= $tva ?></span>
-</div>
-
-<div class="ticket-line total">
-    <span>TOTAL</span>
-    <span><?= $total_ttc ?> CDF</span>
-</div>
+<p>Total: <?= $total_ttc ?> CDF</p>
 
 </div>
 

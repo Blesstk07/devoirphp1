@@ -207,5 +207,56 @@
         "tva": 288,
         "total_ttc": 1888,
         "caissier": "Bless"
+    },
+    {
+        "id": "FAC-20260426-003",
+        "date": "2026-04-26 17:21:18",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 2,
+                "sous_total_ht": 1600
+            }
+        ],
+        "total_ht": 1600,
+        "tva": 288,
+        "total_ttc": 1888,
+        "caissier": "Bless"
+    },
+    {
+        "id": "FAC-20260426-004",
+        "date": "2026-04-26 17:24:26",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 2,
+                "sous_total_ht": 1600
+            }
+        ],
+        "total_ht": 1600,
+        "tva": 288,
+        "total_ttc": 1888,
+        "caissier": "Bless"
+    },
+    {
+        "id": "FAC-20260426-005",
+        "date": "2026-04-26 17:26:38",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 2,
+                "sous_total_ht": 1600
+            }
+        ],
+        "total_ht": 1600,
+        "tva": 288,
+        "total_ttc": 1888,
+        "caissier": "Bless"
     }
 ]

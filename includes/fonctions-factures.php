@@ -1,7 +1,7 @@
 <?php
 
 // ==============================
-// CALCUL FACTURE CENTRALISÉ
+// CALCUL FACTURE (SAFE)
 // ==============================
 
 function calculerFacture($articles) {
@@ -11,23 +11,20 @@ function calculerFacture($articles) {
 
     foreach ($articles as $a) {
 
-        $prix = isset($a['prix_unitaire_ht']) ? floatval($a['prix_unitaire_ht']) : 0;
-        $quantite = isset($a['quantite']) ? intval($a['quantite']) : 0;
+        $sous_total = $a['prix_unitaire_ht'] * $a['quantite'];
 
-        if ($prix < 0) $prix = 0;
-        if ($quantite < 0) $quantite = 0;
+        $articles_calcules[] = [
+            "code_barre" => $a['code_barre'],
+            "nom" => $a['nom'],
+            "prix_unitaire_ht" => $a['prix_unitaire_ht'],
+            "quantite" => $a['quantite'],
+            "sous_total_ht" => $sous_total
+        ];
 
-        $sous_total = $prix * $quantite;
-
-        $a['sous_total_ht'] = $sous_total;
-
-        $articles_calcules[] = $a;
         $total_ht += $sous_total;
     }
 
-    $taux_tva = 0.18;
-
-    $tva = $total_ht * $taux_tva;
+    $tva = $total_ht * 0.18;
     $total_ttc = $total_ht + $tva;
 
     return [
@@ -40,7 +37,7 @@ function calculerFacture($articles) {
 
 
 // ==============================
-// LOGS
+// LOG SYSTEM
 // ==============================
 
 function ajouterLog($action, $details) {
@@ -50,10 +47,6 @@ function ajouterLog($action, $details) {
     $logs = file_exists($file)
         ? json_decode(file_get_contents($file), true)
         : [];
-
-    if (!is_array($logs)) {
-        $logs = [];
-    }
 
     $logs[] = [
         "date" => date("Y-m-d H:i:s"),
