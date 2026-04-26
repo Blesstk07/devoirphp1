@@ -309,5 +309,22 @@
         "tva": 288,
         "total_ttc": 1888,
         "caissier": "Bless"
+    },
+    {
+        "id": "FAC-20260426-182225-511",
+        "date": "2026-04-26 18:22:25",
+        "articles": [
+            {
+                "code_barre": "6009804011223",
+                "nom": "Pepsi 50cl",
+                "prix_unitaire_ht": 800,
+                "quantite": 1,
+                "sous_total_ht": 800
+            }
+        ],
+        "total_ht": 800,
+        "tva": 144,
+        "total_ttc": 944,
+        "caissier": "Bless"
     }
 ]

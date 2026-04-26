@@ -1,78 +1,63 @@
+let codeReader = null;
 let scanning = false;
 let lastCode = null;
 
 function startScanner(baseUrl) {
 
-    console.log("START SCANNER");
-
     if (scanning) return;
     scanning = true;
     lastCode = null;
 
-    if (typeof Quagga === "undefined") {
-        alert("Quagga non chargé !");
-        return;
-    }
+    codeReader = new ZXing.BrowserBarcodeReader();
 
-    Quagga.init({
-        inputStream: {
-            name: "Live",
-            type: "LiveStream",
-            target: document.querySelector("#scanner-container"),
-            constraints: {
-                facingMode: "environment"
-            }
-        },
-        decoder: {
-            readers: [
-                "ean_reader",
-                "code_128_reader",
-                "ean_8_reader"
-            ]
-        }
-    }, function (err) {
+    codeReader.getVideoInputDevices()
+        .then((devices) => {
 
-        if (err) {
-            console.error(err);
+            const deviceId = devices[0].deviceId;
+
+            codeReader.decodeFromVideoDevice(
+                deviceId,
+                "video",
+                (result, err) => {
+
+                    if (result && scanning) {
+
+                        const code = result.text;
+
+                        // 🔥 anti double scan
+                        if (code === lastCode) return;
+
+                        lastCode = code;
+                        scanning = false;
+
+                        console.log("SCAN OK:", code);
+
+                        // stop caméra propre
+                        codeReader.reset();
+
+                        setTimeout(() => {
+                            window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
+                        }, 150);
+                    }
+
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.log("scan...");
+                    }
+                }
+            );
+        })
+        .catch(err => {
+            console.error("Erreur caméra:", err);
             scanning = false;
-            return;
-        }
-
-        Quagga.start();
-        console.log("CAMERA STARTED");
-    });
-
-    Quagga.offDetected(); // 🔥 important reset events
-
-    Quagga.onDetected(function (data) {
-
-        if (!scanning) return;
-
-        const code = data.codeResult.code;
-
-        if (code === lastCode) return;
-
-        lastCode = code;
-        scanning = false;
-
-        console.log("SCAN:", code);
-
-        Quagga.stop();
-
-        setTimeout(() => {
-            window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
-        }, 200);
-    });
+        });
 }
 
 function stopScanner() {
 
-    console.log("STOP SCANNER");
-
     scanning = false;
     lastCode = null;
 
-    if (typeof Quagga !== "undefined") {
-        Quagga.stop();
+    if (codeReader) {
+        codeReader.reset();
     }
 }

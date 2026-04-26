@@ -13,6 +13,7 @@ if (!isset($_SESSION['facture'])) {
     $_SESSION['facture'] = [];
 }
 
+/* ================= INIT ANTI DOUBLE SCAN ================= */
 if (!isset($_SESSION['last_scan'])) {
     $_SESSION['last_scan'] = '';
 }
@@ -22,6 +23,7 @@ if (!empty($_GET['code'])) {
 
     $code = trim($_GET['code']);
 
+    // 🔒 sécurité anti double passage HTTP
     if ($_SESSION['last_scan'] !== $code) {
 
         $_SESSION['last_scan'] = $code;
@@ -33,8 +35,9 @@ if (!empty($_GET['code'])) {
             $found = false;
 
             foreach ($_SESSION['facture'] as &$item) {
+
                 if ($item['code_barre'] === $produit['code_barre']) {
-                    $item['quantite']++;
+                    $item['quantite'] += 1;
                     $found = true;
                     break;
                 }
@@ -46,7 +49,7 @@ if (!empty($_GET['code'])) {
                 $_SESSION['facture'][] = [
                     "code_barre" => $produit['code_barre'],
                     "nom" => $produit['nom'],
-                    "prix_unitaire_ht" => $produit['prix_unitaire_ht'],
+                    "prix_unitaire_ht" => (float)$produit['prix_unitaire_ht'],
                     "quantite" => 1
                 ];
             }
@@ -56,6 +59,7 @@ if (!empty($_GET['code'])) {
 
 /* ================= UPDATE ================= */
 if (isset($_POST['update'])) {
+
     $i = $_POST['index'];
     $q = (int)$_POST['quantite'];
 
@@ -81,9 +85,10 @@ if (isset($_POST['vider'])) {
 
 /* ================= CALCUL ================= */
 $result = calculerFacture($_SESSION['facture']);
-$total_ht = $result['total_ht'];
-$tva = $result['tva'];
-$total_ttc = $result['total_ttc'];
+
+$total_ht = $result['total_ht'] ?? 0;
+$tva = $result['tva'] ?? 0;
+$total_ttc = $result['total_ttc'] ?? 0;
 
 /* ================= VALIDATION ================= */
 if (isset($_POST['valider_facture'])) {
@@ -94,7 +99,8 @@ if (isset($_POST['valider_facture'])) {
         ? json_decode(file_get_contents($file), true)
         : [];
 
-    $idFacture = "FAC-" . date("Ymd-His") . "-" . rand(100,999);
+    // 🔥 ID propre + unique + lisible
+    $idFacture = "FAC-" . date("Ymd-His") . "-" . rand(100, 999);
 
     foreach ($result['articles'] as $item) {
         mettreAJourStock($item['code_barre'], $item['quantite']);
@@ -145,17 +151,16 @@ body {
 .left { flex: 2; }
 .right { flex: 1; }
 
-#video {
-    width: 300px;
-    height: 220px;
-    border: 2px solid #ff6600;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
 .camera-box {
     text-align: center;
     margin-bottom: 10px;
+}
+
+#video {
+    width: 320px;
+    height: 240px;
+    border: 2px solid #ff6600;
+    border-radius: 10px;
 }
 
 .btn {
@@ -187,6 +192,13 @@ td, th {
     text-align: center;
     border-bottom: 1px solid #333;
 }
+
+.ticket {
+    background: white;
+    color: black;
+    padding: 15px;
+    border-radius: 10px;
+}
 </style>
 </head>
 
@@ -200,8 +212,7 @@ td, th {
 
 <div class="camera-box">
 
-    <!-- IMPORTANT: container propre -->
-    <div id="scanner-container" style="width:320px;height:240px;margin:auto;border:2px solid #ff6600;border-radius:10px;"></div>
+    <video id="video"></video>
 
     <button type="button" class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
         🎥 Activer caméra
@@ -224,7 +235,7 @@ td, th {
 
 <?php foreach ($_SESSION['facture'] as $i => $item): ?>
 <tr>
-    <td><?= $item['nom'] ?></td>
+    <td><?= htmlspecialchars($item['nom']) ?></td>
     <td><?= $item['prix_unitaire_ht'] ?></td>
     <td>
         <form method="POST">
@@ -251,9 +262,12 @@ td, th {
 
 <div class="right">
 
-<div style="background:white;color:black;padding:15px;border-radius:10px;">
+<div class="ticket">
 
-<h3>Ticket</h3>
+<h3>Super Marché CodeRunner</h3>
+<p><?= date("d/m/Y H:i") ?></p>
+
+<hr>
 
 <?php foreach ($_SESSION['facture'] as $item): ?>
 <div>
@@ -263,7 +277,7 @@ td, th {
 
 <hr>
 
-<strong>Total: <?= $total_ttc ?> CDF</strong>
+<strong>Total : <?= $total_ttc ?> CDF</strong>
 
 </div>
 
@@ -271,7 +285,7 @@ td, th {
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@latest"></script>
 <script src="/TP/assets/js/scanner.js"></script>
 
 </body>
