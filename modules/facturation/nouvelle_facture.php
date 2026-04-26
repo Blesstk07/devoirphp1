@@ -13,7 +13,6 @@ if (!isset($_SESSION['facture'])) {
     $_SESSION['facture'] = [];
 }
 
-/* ================= INIT ANTI DOUBLE SCAN ================= */
 if (!isset($_SESSION['last_scan'])) {
     $_SESSION['last_scan'] = '';
 }
@@ -23,7 +22,6 @@ if (!empty($_GET['code'])) {
 
     $code = trim($_GET['code']);
 
-    // 🔒 sécurité anti double passage HTTP
     if ($_SESSION['last_scan'] !== $code) {
 
         $_SESSION['last_scan'] = $code;
@@ -35,9 +33,8 @@ if (!empty($_GET['code'])) {
             $found = false;
 
             foreach ($_SESSION['facture'] as &$item) {
-
                 if ($item['code_barre'] === $produit['code_barre']) {
-                    $item['quantite'] += 1;
+                    $item['quantite']++;
                     $found = true;
                     break;
                 }
@@ -49,7 +46,7 @@ if (!empty($_GET['code'])) {
                 $_SESSION['facture'][] = [
                     "code_barre" => $produit['code_barre'],
                     "nom" => $produit['nom'],
-                    "prix_unitaire_ht" => (float)$produit['prix_unitaire_ht'],
+                    "prix_unitaire_ht" => $produit['prix_unitaire_ht'],
                     "quantite" => 1
                 ];
             }
@@ -57,73 +54,10 @@ if (!empty($_GET['code'])) {
     }
 }
 
-/* ================= UPDATE ================= */
-if (isset($_POST['update'])) {
-
-    $i = $_POST['index'];
-    $q = (int)$_POST['quantite'];
-
-    if ($q > 0) {
-        $_SESSION['facture'][$i]['quantite'] = $q;
-    } else {
-        unset($_SESSION['facture'][$i]);
-        $_SESSION['facture'] = array_values($_SESSION['facture']);
-    }
-}
-
-/* ================= DELETE ================= */
-if (isset($_GET['delete'])) {
-    unset($_SESSION['facture'][$_GET['delete']]);
-    $_SESSION['facture'] = array_values($_SESSION['facture']);
-}
-
-/* ================= VIDER ================= */
-if (isset($_POST['vider'])) {
-    $_SESSION['facture'] = [];
-    $_SESSION['last_scan'] = '';
-}
-
-/* ================= CALCUL ================= */
 $result = calculerFacture($_SESSION['facture']);
-
 $total_ht = $result['total_ht'] ?? 0;
 $tva = $result['tva'] ?? 0;
 $total_ttc = $result['total_ttc'] ?? 0;
-
-/* ================= VALIDATION ================= */
-if (isset($_POST['valider_facture'])) {
-
-    $file = '../../data/factures.json';
-
-    $factures = file_exists($file)
-        ? json_decode(file_get_contents($file), true)
-        : [];
-
-    // 🔥 ID propre + unique + lisible
-    $idFacture = "FAC-" . date("Ymd-His") . "-" . rand(100, 999);
-
-    foreach ($result['articles'] as $item) {
-        mettreAJourStock($item['code_barre'], $item['quantite']);
-    }
-
-    $factures[] = [
-        "id" => $idFacture,
-        "date" => date("Y-m-d H:i:s"),
-        "articles" => $result['articles'],
-        "total_ht" => $total_ht,
-        "tva" => $tva,
-        "total_ttc" => $total_ttc,
-        "caissier" => $_SESSION['user']['identifiant']
-    ];
-
-    file_put_contents($file, json_encode($factures, JSON_PRETTY_PRINT));
-
-    $_SESSION['facture'] = [];
-    $_SESSION['last_scan'] = '';
-
-    header("Location: /TP/modules/facturation/afficher_facture.php?id=" . $idFacture);
-    exit;
-}
 ?>
 
 <!DOCTYPE html>
@@ -133,72 +67,125 @@ if (isset($_POST['valider_facture'])) {
 <title>Nouvelle facture</title>
 
 <style>
+
+/* 🌑 BACKGROUND GLOBAL */
 body {
     margin: 0;
-    font-family: Arial;
-    background: #0b0b0b;
+    font-family: "Segoe UI", Arial;
+    background: radial-gradient(circle at top, #1a1a1a, #000);
     color: white;
 }
 
+/* 📦 CONTAINER CENTRÉ */
 .container {
-    display: flex;
     max-width: 1200px;
     margin: auto;
     padding: 20px;
+    display: flex;
     gap: 20px;
 }
 
-.left { flex: 2; }
-.right { flex: 1; }
+/* 📌 GAUCHE */
+.left {
+    flex: 2;
+    background: #111;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(255,102,0,0.2);
+}
 
+/* 📌 DROITE */
+.right {
+    flex: 1;
+}
+
+/* 🎥 CAMERA */
 .camera-box {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
-#video {
+video {
     width: 320px;
     height: 240px;
+    border-radius: 12px;
     border: 2px solid #ff6600;
-    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255,102,0,0.4);
 }
 
+/* 🔘 BOUTONS */
 .btn {
-    background: #ff6600;
+    background: linear-gradient(45deg, #ff6600, #ff3300);
     border: none;
     padding: 10px 15px;
     margin: 5px;
-    border-radius: 8px;
+    border-radius: 10px;
     color: white;
     cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    transform: scale(1.05);
 }
 
 .btn-danger {
-    background: red;
+    background: #ff1e1e;
 }
 
+/* 📊 TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
-    background: #111;
+    margin-top: 10px;
+    overflow: hidden;
+    border-radius: 10px;
 }
 
 th {
     background: #ff6600;
+    padding: 12px;
 }
 
-td, th {
+td {
+    background: #1c1c1c;
     padding: 10px;
     text-align: center;
     border-bottom: 1px solid #333;
 }
 
+/* 🧾 TICKET */
 .ticket {
-    background: white;
-    color: black;
-    padding: 15px;
-    border-radius: 10px;
+    background: #fff;
+    color: #000;
+    padding: 20px;
+    border-radius: 15px;
+    font-family: monospace;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
+
+.ticket h3 {
+    text-align: center;
+}
+
+.ticket hr {
+    border: none;
+    border-top: 1px dashed #000;
+    margin: 10px 0;
+}
+
+.ticket-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.total {
+    font-weight: bold;
+    font-size: 16px;
+}
+
 </style>
 </head>
 
@@ -206,21 +193,24 @@ td, th {
 
 <div class="container">
 
+<!-- LEFT -->
 <div class="left">
 
-<h2>🧾 Nouvelle facture</h2>
+<h2 style="text-align:center;color:#ff6600;">🧾 Nouvelle facture</h2>
 
 <div class="camera-box">
 
     <video id="video"></video>
 
-    <button type="button" class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
-        🎥 Activer caméra
-    </button>
+    <div>
+        <button class="btn" onclick="startScanner('/TP/modules/facturation/nouvelle_facture.php')">
+            🎥 Activer caméra
+        </button>
 
-    <button type="button" class="btn btn-danger" onclick="stopScanner()">
-        ⛔ Stop caméra
-    </button>
+        <button class="btn btn-danger" onclick="stopScanner()">
+            ⛔ Stop caméra
+        </button>
+    </div>
 
 </div>
 
@@ -230,36 +220,22 @@ td, th {
     <th>Prix</th>
     <th>Qté</th>
     <th>Total</th>
-    <th></th>
 </tr>
 
 <?php foreach ($_SESSION['facture'] as $i => $item): ?>
 <tr>
     <td><?= htmlspecialchars($item['nom']) ?></td>
     <td><?= $item['prix_unitaire_ht'] ?></td>
-    <td>
-        <form method="POST">
-            <input type="hidden" name="index" value="<?= $i ?>">
-            <input type="number" name="quantite" value="<?= $item['quantite'] ?>">
-            <button name="update">✔</button>
-        </form>
-    </td>
+    <td><?= $item['quantite'] ?></td>
     <td><?= $item['prix_unitaire_ht'] * $item['quantite'] ?></td>
-    <td><a href="?delete=<?= $i ?>" style="color:red;">❌</a></td>
 </tr>
 <?php endforeach; ?>
 
 </table>
 
-<br>
-
-<form method="POST">
-    <button class="btn" name="valider_facture">💾 Valider</button>
-    <button class="btn btn-danger" name="vider">🗑 Vider</button>
-</form>
-
 </div>
 
+<!-- RIGHT -->
 <div class="right">
 
 <div class="ticket">
@@ -270,14 +246,32 @@ td, th {
 <hr>
 
 <?php foreach ($_SESSION['facture'] as $item): ?>
-<div>
-<?= $item['nom'] ?> — <?= $item['quantite'] ?> x <?= $item['prix_unitaire_ht'] ?>
+<div class="ticket-line">
+    <span><?= $item['nom'] ?></span>
+    <span><?= $item['quantite'] ?> x <?= $item['prix_unitaire_ht'] ?></span>
 </div>
 <?php endforeach; ?>
 
 <hr>
 
-<strong>Total : <?= $total_ttc ?> CDF</strong>
+<div class="ticket-line">
+    <span>HT</span>
+    <span><?= $total_ht ?></span>
+</div>
+
+<div class="ticket-line">
+    <span>TVA</span>
+    <span><?= $tva ?></span>
+</div>
+
+<div class="ticket-line total">
+    <span>TOTAL</span>
+    <span><?= $total_ttc ?> CDF</span>
+</div>
+
+<hr>
+
+<p style="text-align:center;">Merci pour votre achat 🙏</p>
 
 </div>
 
