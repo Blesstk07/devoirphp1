@@ -1,7 +1,6 @@
 [
     {
         "code_barre": "6009804011223",
-<<<<<<< HEAD
         "nom": "Pepsi 50cl",
         "prix_unitaire_ht": 800,
         "date_expiration": "2027-03-15",
@@ -127,12 +126,5 @@
         "date_expiration": "2026-04-25",
         "quantite_stock": 48,
         "date_enregistrement": "2026-04-25"
-=======
-        "nom": "Pepsi Jus 500 ml",
-        "prix_unitaire_ht": "1000",
-        "date_expiration": "2026-04-28",
-        "quantite_stock": 998,
-        "date_enregistrement": "2026-04-27 23:35:39"
->>>>>>> 2c5154d (modif 39)
     }
 ]
