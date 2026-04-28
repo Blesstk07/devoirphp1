@@ -58,7 +58,9 @@ Le système fonctionne avec des fichiers JSON comme base de données légère.
 ##  Structure du projet
 
 TP/
---README.md
+--rapport
+    -README.md
+    -Système de Gestion de Caisse.docx
 --hash.php
 --index.php
 --config/
@@ -80,10 +82,9 @@ TP/
         -gestion-comptes.php
         -ajouter-compte.php
         -supprimer-compte.php
-        -switch-user.php
+        -dashboard.php
 --data/
     -produits.json
-    -logs.json
     -factures.json
     -utilisateurs.json
 -includes/
