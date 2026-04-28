@@ -1,77 +1,68 @@
 <?php
 
-require_once('../includes/fonctions-factures.php');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-$mois = $_GET['mois'] ?? date("Y-m");
+require_once($_SERVER['DOCUMENT_ROOT'].'/TP/auth/session.php');
+require_once($_SERVER['DOCUMENT_ROOT'].'/TP/includes/fonctions-auth.php');
 
-$factures = lireFactures();
+verifierConnexion();
 
-$total_ht = 0;
-$total_tva = 0;
-$total_ttc = 0;
-$nb_factures = 0;
+/* Lecture des factures */
+$factures = file_exists($_SERVER['DOCUMENT_ROOT'].'/TP/data/factures.json')
+    ? json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT'].'/TP/data/factures.json'), true)
+    : [];
+
+if (!is_array($factures)) $factures = [];
+
+$today = date('Y-m-d');
+$total = 0;
 
 foreach ($factures as $f) {
 
-    if (strpos($f['date'], $mois) === 0) {
+    if (!isset($f['date']) || !isset($f['total'])) continue;
 
-        $total_ht += $f['total_ht'];
-        $total_tva += $f['tva'];
-        $total_ttc += $f['total_ttc'];
-        $nb_factures++;
+    $date = substr($f['date'], 0, 10);
+
+    if ($date === $today) {
+        $total += (float)$f['total'];
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Rapport Mensuel</title>
+<title>Rapport Journalier</title>
 
 <style>
-body {
-    background: #000;
-    color: white;
-    font-family: Arial;
+body{
+    background:#000;
+    color:#fff;
+    font-family:Arial;
+    padding:20px;
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
-    margin-top: 50px;
-    background: #111;
-    padding: 20px;
-    border-radius: 10px;
+.card{
+    background:#111;
+    padding:20px;
+    border-radius:10px;
+    border:1px solid #222;
+    text-align:center;
 }
 
-h2 {
-    text-align: center;
-    color: red;
-}
-
-.box {
-    margin: 10px 0;
-    padding: 10px;
-    background: #222;
-    border-radius: 8px;
-}
+h1{color:red;}
 </style>
 
 </head>
-
 <body>
 
-<div class="container">
+<h1>📊 Rapport journalier</h1>
 
-<h2>📊 Rapport Mensuel</h2>
-
-<p>Mois : <?= $mois ?></p>
-
-<div class="box">Nombre de factures : <?= $nb_factures ?></div>
-<div class="box">Total HT : <?= $total_ht ?> CDF</div>
-<div class="box">TVA : <?= $total_tva ?> CDF</div>
-<div class="box"><strong>Total TTC : <?= $total_ttc ?> CDF</strong></div>
-
+<div class="card">
+    <h2><?= number_format($total, 0, ',', ' ') ?> FC</h2>
+    <p>Ventes du jour (<?= $today ?>)</p>
 </div>
 
 </body>

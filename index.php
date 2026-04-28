@@ -3,42 +3,53 @@
 require_once('auth/session.php');
 require_once('includes/fonctions-auth.php');
 
+/* Sécurité anti-crash */
+if (!function_exists('verifierConnexion')) {
+    die("Erreur système : verifierConnexion introuvable");
+}
+
 verifierConnexion();
 
-$user = getUser();
-$role = $user['role'] ?? '';
+if (!function_exists('getUser')) {
+    die("Erreur système : getUser introuvable");
+}
 
-$page = $_GET['page'] ?? 'home';
+$user = getUser();
+$role = $user['role'] ?? 'inconnu';
 
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>CAISSE PRO</title>
+<title>Caisse Pro</title>
 
 <style>
+
+/* ================= GLOBAL ================= */
 body {
     margin: 0;
-    font-family: Arial;
-    background: #0a0a0a;
-    color: white;
+    font-family: Arial, sans-serif;
+    background: #000;
+    color: #fff;
     display: flex;
 }
 
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
 .sidebar {
     width: 260px;
     height: 100vh;
     background: #111;
     border-right: 2px solid red;
     padding: 15px;
+    box-sizing: border-box;
 }
 
 .logo {
     text-align: center;
     color: red;
     font-weight: bold;
+    font-size: 20px;
     margin-bottom: 20px;
 }
 
@@ -49,7 +60,7 @@ body {
     margin-bottom: 15px;
 }
 
-/* MENU */
+/* ================= MENU ================= */
 .menu a {
     display: block;
     padding: 12px;
@@ -65,13 +76,13 @@ body {
     background: red;
 }
 
-/* MAIN */
+/* ================= MAIN ================= */
 .main {
     flex: 1;
     padding: 20px;
 }
 
-/* CARDS */
+/* ================= CARDS ================= */
 .cards {
     display: flex;
     gap: 15px;
@@ -84,13 +95,14 @@ body {
     background: #111;
     padding: 20px;
     border-radius: 10px;
-    text-align: center;
     border: 1px solid #222;
+    text-align: center;
 }
 
 .card h2 {
     color: red;
 }
+
 </style>
 
 </head>
@@ -103,37 +115,40 @@ body {
 <div class="logo">🛒 CAISSE PRO</div>
 
 <div class="user">
-<strong><?= $user['nom_complet'] ?></strong><br>
+<strong><?= $user['nom_complet'] ?? 'Utilisateur' ?></strong><br>
 <small><?= $role ?></small>
 </div>
 
 <div class="menu">
 
-<a href="index.php?page=home">🏠 Accueil</a>
+<a href="/TP/index.php">🏠 Accueil</a>
 
 <?php if ($role === 'caissier'): ?>
 
-    <a href="modules/facturation/facturation.php">🧾 Facturation</a>
-    <a href="index.php?page=rapports">📊 Rapports</a>
+    <a href="/TP/modules/facturation/facturation.php">🧾 Facturation</a>
+    <a href="/TP/rapports/rapport-journalier.php">📊 Rapport journalier</a>
+    <a href="/TP/rapports/rapport-mensuel.php">📅 Rapport mensuel</a>
 
 <?php elseif ($role === 'manager'): ?>
 
-    <a href="modules/produits/liste.php">📦 Produits</a>
-    <a href="modules/produits/enregistrer.php">➕ Ajouter produit</a>
-    <a href="modules/facturation/facturation.php">🧾 Facturation</a>
-    <a href="index.php?page=rapports">📊 Rapports</a>
+    <a href="/TP/modules/produits/liste.php">📦 Produits</a>
+    <a href="/TP/modules/produits/enregistrer.php">➕ Ajouter produit</a>
+    <a href="/TP/modules/facturation/facturation.php">🧾 Facturation</a>
+    <a href="/TP/rapports/rapport-journalier.php">📊 Rapport journalier</a>
+    <a href="/TP/rapports/rapport-mensuel.php">📅 Rapport mensuel</a>
 
 <?php elseif ($role === 'super_admin'): ?>
 
-    <a href="index.php?page=dashboard">📊 Dashboard</a>
-    <a href="modules/produits/liste.php">📦 Produits</a>
-    <a href="modules/produits/enregistrer.php">➕ Ajouter produit</a>
-    <a href="modules/facturation/facturation.php">🧾 Facturation</a>
-    <a href="index.php?page=rapports">📊 Rapports</a>
+    <a href="/TP/index.php">📊 Dashboard</a>
+    <a href="/TP/modules/produits/liste.php">📦 Produits</a>
+    <a href="/TP/modules/produits/enregistrer.php">➕ Ajouter produit</a>
+    <a href="/TP/modules/facturation/facturation.php">🧾 Facturation</a>
+    <a href="/TP/rapports/rapport-journalier.php">📊 Rapport journalier</a>
+    <a href="/TP/rapports/rapport-mensuel.php">📅 Rapport mensuel</a>
 
 <?php endif; ?>
 
-<a href="auth/logout.php">🚪 Déconnexion</a>
+<a href="/TP/auth/logout.php">🚪 Déconnexion</a>
 
 </div>
 
@@ -142,79 +157,28 @@ body {
 <!-- MAIN -->
 <div class="main">
 
-<?php if ($page === 'home'): ?>
-
 <div class="card">
-<h1>Bienvenue <?= $user['nom_complet'] ?></h1>
-<p>Système de caisse opérationnel</p>
+    <h1>Bienvenue <?= $user['nom_complet'] ?? '' ?></h1>
+    <p>Système de caisse opérationnel</p>
 </div>
 
-<?php elseif ($page === 'dashboard'): ?>
-
-<?php
-require_once('includes/fonctions-produits.php');
-require_once('includes/fonctions-factures.php');
-
-$produits = lireProduits();
-$factures = lireFactures();
-?>
-
-<h1 style="color:red;">📊 Dashboard</h1>
+<?php if ($role === 'super_admin'): ?>
 
 <div class="cards">
 
 <div class="card">
-<h2><?= count($produits) ?></h2>
-<p>Produits</p>
+<h2>📦 Produits</h2>
+<p>Gestion stock</p>
 </div>
 
 <div class="card">
-<h2><?= count($factures) ?></h2>
-<p>Factures</p>
-</div>
-
-</div>
-
-<?php elseif ($page === 'rapports'): ?>
-
-<?php
-require_once('includes/fonctions-factures.php');
-
-$factures = lireFactures();
-
-$today = date('Y-m-d');
-$currentMonth = date('Y-m');
-
-$totalJour = 0;
-$totalMois = 0;
-
-foreach ($factures as $f) {
-
-    $date = substr($f['date'] ?? '', 0, 10);
-    $mois = substr($f['date'] ?? '', 0, 7);
-
-    if ($date === $today) {
-        $totalJour += $f['total'] ?? 0;
-    }
-
-    if ($mois === $currentMonth) {
-        $totalMois += $f['total'] ?? 0;
-    }
-}
-?>
-
-<h1 style="color:red;">📊 Rapports</h1>
-
-<div class="cards">
-
-<div class="card">
-<h2><?= $totalJour ?> FC</h2>
-<p>Rapport journalier</p>
+<h2>🧾 Facturation</h2>
+<p>Ventes & tickets</p>
 </div>
 
 <div class="card">
-<h2><?= $totalMois ?> FC</h2>
-<p>Rapport mensuel</p>
+<h2>📊 Rapports</h2>
+<p>Journalier / Mensuel</p>
 </div>
 
 </div>
