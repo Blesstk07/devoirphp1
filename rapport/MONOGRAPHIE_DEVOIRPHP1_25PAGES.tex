@@ -1,0 +1,552 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\IfFileExists{french.ldf}{\usepackage[french]{babel}}{\usepackage{babel}}
+\title{MONOGRAPHIE DU TP DE PHP}
+\author{L2LMD FASI}
+\date{22 avril 2026}
+\begin{document}
+\thispagestyle{empty}
+\begin{center}
+\vspace*{\fill}
+\textbf{MONOGRAPHIE DU TP DE PHP} \\
+\vspace{0.8cm}
+\textbf{L2LMD FASI} \\
+\vspace{1.5cm}
+\textbf{Membres du groupe:} \\
+\vspace{0.7cm}
+\textbf{TSHIMANGA KALALA BLESS } \\
+\vspace{1cm}
+\textbf{CIVAVA LITSANI ESTHER} \\
+\vspace{1cm}
+\textbf{MUMPUBI ELAM RUBIS} \\
+\vspace{1.5cm}
+\textbf{Sujet du projet :SYSTEME DE FACTURATION  AVEC LECTURE DE CODE-BARRES} \\
+\vspace{1.5cm}
+\textbf{Année académique : 2025-2026} \\
+\vspace{0.5cm}
+\textbf{Date : 22 avril 2026}
+\vspace*{\fill}
+
+\end{center}
+\newpage
+\tableofcontents
+\newpage
+
+
+\section{Introduction }
+
+Dans le cadre du cours de programmation web, nous avons réalisé un projet basé sur le langage PHP. Ce projet vise à mettre en pratique les notions fondamentales du développement web dynamique en proposant une application concrète, structurée et utile dans un contexte de gestion. L'intérêt d'un tel travail ne réside pas uniquement dans l'écriture du code, mais également dans la capacité à comprendre les besoins d'un utilisateur, à organiser les fichiers d'une application, à traiter correctement les données et à produire une interface capable de faciliter des opérations courantes.
+L'étude de ce projet est importante car elle nous place dans une situation proche de celle rencontrée dans le monde professionnel. Une application de vente, même simple, implique en effet plusieurs dimensions techniques: l'authentification des utilisateurs, la gestion de rôles, l'enregistrement d'articles, la création de factures, la persistance des informations, l'affichage de rapports et la prise en compte d'un minimum de sécurité. Chacun de ces éléments mobilise des connaissances théoriques acquises au cours et les transforme en compétences pratiques.
+
+
+Cette monographie s'inscrit donc dans une logique de documentation académique et technique. Elle permet de rendre compte du travail réalisé, de justifier les choix technologiques effectués et de démontrer que la création d'une application web, même à échelle réduite, demande une réflexion sur l'organisation, la sécurité, la maintenance et l'évolutivité du code. À travers les pages qui suivent, nous présenterons successivement le projet, son contexte, son environnement technique, son arborescence, ses fonctionnalités, sa structure de données, son architecture, sa sécurité, ainsi que les difficultés rencontrées et les améliorations envisageables.
+
+Enfin, cette introduction montre que le projet dépasse le simple cadre d'un exercice scolaire. Il constitue une base d'apprentissage solide qui pourra être enrichie à l'avenir, soit par l'ajout d'une base de données relationnelle, soit par une amélioration de l'interface, soit encore par une extension des fonctionnalités. Ainsi, ce travail joue à la fois le rôle d'application pédagogique, de support d'analyse et de fondation pour des développements ultérieurs plus avancés.
+
+
+
+\subsection{Présentation du projet}
+Le projet réalisé consiste en une application web de gestion de transactions de vente.
+
+
+\subsection{Contexte et objectifs}
+Ce projet s'inscrit dans un contexte d'apprentissage des technologies web. Au cours de notre formation, nous avons étudié les bases du développement de pages web statiques avec HTML et CSS, puis nous avons progressivement abordé la notion de pages dynamiques grâce à PHP. Il était donc nécessaire de réaliser un projet intégrateur permettant de passer de la théorie à la pratique. Une application de gestion commerciale a été retenue parce qu'elle offre un terrain riche en fonctionnalités tout en restant suffisamment accessible pour un niveau Licence 1.
+
+Le contexte pédagogique est également marqué par la volonté de comprendre comment un serveur traite les requêtes issues d'un navigateur. Dans un site web statique, les pages ne font qu'afficher du contenu préparé à l'avance. En revanche, avec PHP, la page peut réagir aux données saisies par l'utilisateur, exécuter des calculs, effectuer des vérifications, enregistrer des informations et produire une réponse personnalisée. Ce projet nous a donc permis d'expérimenter concrètement cette logique de traitement dynamique.
+
+Le contexte technique est celui d'un environnement volontairement simple. Nous n'avons pas utilisé de framework, ni de base de données relationnelle complète, car l'objectif n'était pas de construire une solution industrielle immédiatement, mais de consolider les fondamentaux: la syntaxe PHP, la séparation entre la logique métier et l'affichage, la manipulation des tableaux, les formulaires, les sessions et les opérations de lecture et d'écriture dans des fichiers. Cette simplicité assumée nous a obligés à comprendre chaque étape plutôt qu'à nous reposer sur des outils automatisés.
+
+Les objectifs poursuivis dans ce travail sont multiples et complémentaires:
+\begin{itemize}
+\item Comprendre le fonctionnement du PHP, notamment son exécution côté serveur, la création de variables, les structures conditionnelles, les boucles, les fonctions et le traitement des formulaires.
+\item Manipuler les formulaires HTML afin de collecter des données telles que les informations sur les produits, les quantités vendues, les identifiants de connexion ou les paramètres de recherche.
+\item Traiter les données côté serveur en vérifiant les champs reçus, en calculant des montants, en gérant des erreurs simples et en enregistrant les résultats dans un support persistant.
+\item Structurer un projet web en répartissant les responsabilités entre plusieurs fichiers, de manière à obtenir une application claire, maintenable et évolutive.
+\end{itemize}
+
+
+\section{Objectifs du projet}
+Le projet répond aux objectifs suivants:
+\begin{itemize}
+  \item concevoir un système fonctionnel de gestion de caisse,
+  \item proposer un système d'authentification sécurisé,
+  \item stocker la persistance des données sans base relationnelle,
+  \item offrir une interface utilisateur claire,
+  \item gérer les droits d'accès selon des rôles définis,
+  \item calculer correctement les taxes et totaux,
+  \item produire des rapports journaliers et mensuels.
+\end{itemize}
+
+\section{Environnement technique}
+La solution repose sur un serveur PHP 7.4+ et sur une architecture de fichiers locaux. Aucun framework n'a été utilisé pour conserver l'exercice au niveau fondamental de PHP. Les technologies principales sont:
+\begin{itemize}
+  \item PHP 7.4 ou supérieur,
+  \item HTML5,
+  \item CSS3,
+  \item JavaScript vanilla,
+  \item JSON pour la persistance,
+  \item ZXing pour la lecture de code-barres via la caméra.
+\end{itemize}
+
+Le choix du stockage JSON s'explique par l'objectif pédagogique de travailler sur des fichiers plutôt que sur un SGBD. Cela simplifie l'installation et la portabilité, tout en conservant une structure de données lisible et éditable.
+
+\section{Arborescence commentée}
+L'arborescence du projet est claire et segmentée par type de responsabilité.
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{|l|p{8cm}|}
+\multicolumn{2}{|c|}{\textbf{Dossier auth/}} \\
+\hline
+\texttt{auth/login.php} & Formulaire et traitement de connexion utilisateur \\
+\hline
+\texttt{auth/logout.php} & Déconnexion et destruction de session \\
+\hline
+\texttt{auth/session.php} & Gestion des sessions et vérification des rôles \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier config/}} \\
+\hline
+\texttt{config/config.php} & Constantes et paramètres globaux \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier data/}} \\
+\hline
+\texttt{data/utilisateurs.json} & Stockage des utilisateurs avec mots de passe hachés \\
+\hline
+\texttt{data/produits.json} & Catalogue de produits avec prix et quantités \\
+\hline
+\texttt{data/factures.json} & Archive des factures validées et enregistrées \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier includes/}} \\
+\hline
+\texttt{includes/fonctions-auth.php} & Logique d'authentification et de session \\
+\hline
+\texttt{includes/fonctions-produits.php} & Lecture et écriture des produits en JSON \\
+\hline
+\texttt{includes/fonctions-factures.php} & Calcul des totaux et gestion des factures \\
+\hline
+\texttt{includes/header.php} & En-tête HTML réutilisable \\
+\hline
+\texttt{includes/footer.php} & Pied de page HTML réutilisable \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier modules/admin/}} \\
+\hline
+\texttt{modules/admin/ajouter\_compte.php} & Création de nouveaux utilisateurs \\
+\hline
+\texttt{modules/admin/gestion\_compte.php} & Modification et activation/désactivation \\
+\hline
+\texttt{modules/admin/supprimer\_compte.php} & Suppression de comptes utilisateur \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier modules/produits/}} \\
+\hline
+\texttt{modules/produits/liste.php} & Affichage du catalogue complet \\
+\hline
+\texttt{modules/produits/enregistrer.php} & Ajout ou modification de produits \\
+\hline
+\texttt{modules/produits/lire.php} & Détails complets d'un produit \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier modules/facturation/}} \\
+\hline
+\texttt{modules/facturation/nouvelle\_facture.php} & Création et modification de la facture en cours \\
+\hline
+\texttt{modules/facturation/afficher\_facture.php} & Validation, calcul et sauvegarde \\
+\hline
+\texttt{modules/facturation/calcul.php} & Fonctions de calcul supplémentaires \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier rapports/}} \\
+\hline
+\texttt{rapports/rapport\_journalier.php} & Résumé des ventes du jour \\
+\hline
+\texttt{rapports/rapport\_mensuel.php} & Résumé des ventes du mois courant \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier assets/css/}} \\
+\hline
+\texttt{assets/css/style.css} & Feuille de style principale \\
+\hline
+\multicolumn{2}{|c|}{\textbf{Dossier assets/js/}} \\
+\hline
+\texttt{assets/js/scanner.js} & Scanner de code-barres via ZXing \\
+\hline
+\end{tabular}
+\end{table}
+\section{Introduction}
+
+Dans le cadre du cours de programmation web, nous avons réalisé un projet basé sur le langage PHP. Ce projet vise à mettre en pratique les notions fondamentales du développement web dynamique en proposant une application concrète, structurée et utile dans un contexte de gestion. L'intérêt d'un tel travail ne réside pas uniquement dans l'écriture du code, mais également dans la capacité à comprendre les besoins d'un utilisateur, à organiser les fichiers d'une application, à traiter correctement les données et à produire une interface capable de faciliter des opérations courantes.
+L'étude de ce projet est importante car elle nous place dans une situation proche de celle rencontrée dans le monde professionnel. Une application de vente, même simple, implique en effet plusieurs dimensions techniques: l'authentification des utilisateurs, la gestion de rôles, l'enregistrement d'articles, la création de factures, la persistance des informations, l'affichage de rapports et la prise en compte d'un minimum de sécurité. Chacun de ces éléments mobilise des connaissances théoriques acquises au cours et les transforme en compétences pratiques.
+
+Cette monographie s'inscrit donc dans une logique de documentation académique et technique. Elle permet de rendre compte du travail réalisé, de justifier les choix technologiques effectués et de démontrer que la création d'une application web, même à échelle réduite, demande une réflexion sur l'organisation, la sécurité, la maintenance et l'évolutivité du code. À travers les pages qui suivent, nous présenterons successivement le projet, son contexte, son environnement technique, son arborescence, ses fonctionnalités, sa structure de données, son architecture, sa sécurité, ainsi que les difficultés rencontrées et les améliorations envisageables.
+
+Enfin, cette introduction montre que le projet dépasse le simple cadre d'un exercice scolaire. Il constitue une base d'apprentissage solide qui pourra être enrichie à l'avenir, soit par l'ajout d'une base de données relationnelle, soit par une amélioration de l'interface, soit encore par une extension des fonctionnalités. Ainsi, ce travail joue à la fois le rôle d'application pédagogique, de support d'analyse et de fondation pour des développements ultérieurs plus avancés.
+\subsection{Contexte et objectifs}
+Ce projet s'inscrit dans un contexte d'apprentissage des technologies web. Au cours de notre formation, nous avons étudié les bases du développement de pages web statiques avec HTML et CSS, puis nous avons progressivement abordé la notion de pages dynamiques grâce à PHP. Il était donc nécessaire de réaliser un projet intégrateur permettant de passer de la théorie à la pratique. Une application de gestion commerciale a été retenue parce qu'elle offre un terrain riche en fonctionnalités tout en restant suffisamment accessible pour un niveau Licence 1.
+
+Le contexte pédagogique est également marqué par la volonté de comprendre comment un serveur traite les requêtes issues d'un navigateur. Dans un site web statique, les pages ne font qu'afficher du contenu préparé à l'avance. En revanche, avec PHP, la page peut réagir aux données saisies par l'utilisateur, exécuter des calculs, effectuer des vérifications, enregistrer des informations et produire une réponse personnalisée. Ce projet nous a donc permis d'expérimenter concrètement cette logique de traitement dynamique.
+
+Le contexte technique est celui d'un environnement volontairement simple. Nous n'avons pas utilisé de framework, ni de base de données relationnelle complète, car l'objectif n'était pas de construire une solution industrielle immédiatement, mais de consolider les fondamentaux: la syntaxe PHP, la séparation entre la logique métier et l'affichage, la manipulation des tableaux, les formulaires, les sessions et les opérations de lecture et d'écriture dans des fichiers. Cette simplicité assumée nous a obligés à comprendre chaque étape plutôt qu'à nous reposer sur des outils automatisés.
+
+Les objectifs poursuivis dans ce travail sont multiples et complémentaires:
+\begin{itemize}
+\item Comprendre le fonctionnement du PHP, notamment son exécution côté serveur, la création de variables, les structures conditionnelles, les boucles, les fonctions et le traitement des formulaires.
+\item Manipuler les formulaires HTML afin de collecter des données telles que les informations sur les produits, les quantités vendues, les identifiants de connexion ou les paramètres de recherche.
+\item Traiter les données côté serveur en vérifiant les champs reçus, en calculant des montants, en gérant des erreurs simples et en enregistrant les résultats dans un support persistant.
+\item Structurer un projet web en répartissant les responsabilités entre plusieurs fichiers, de manière à obtenir une application claire, maintenable et évolutive.
+\end{itemize}
+
+
+\section{Fonctionnalités principales}
+Le projet propose les fonctionnalités suivantes:
+\begin{itemize}
+  \item authentification sécurisée avec gestion de rôles,
+  \item création, lecture et gestion des produits,
+  \item création de factures via la session,
+  \item calcul automatique du total HT, TVA et TTC,
+  \item génération de rapports journaliers et mensuels,
+  \item scanner de code-barres supporté par la caméra.
+\end{itemize}
+
+\section{Architecture logicielle}
+\subsection{Description des répertoires}
+\begin{itemize}
+  \item \texttt{auth/}: contient les pages pour se connecter, se déconnecter et gérer la session. Ce dossier joue un rôle essentiel, car il contrôle l'entrée dans l'application. Il regroupe les opérations qui déterminent qui peut accéder au système, à quel moment et avec quel niveau d'autorisation.
+  \item \texttt{config/}: contient la configuration globale et les constantes utilisées partout. Centraliser ces paramètres est une bonne pratique, car cela évite les duplications et facilite les modifications futures.
+  \item \texttt{data/}: répertoire de persistance JSON. Il conserve les données utilisateurs, les fiches produits et les factures. Ce dossier constitue donc la mémoire de l'application.
+  \item \texttt{includes/}: fonctions métier partagées et composants HTML réutilisables. Ce dossier réduit la répétition de code en concentrant les traitements communs et les éléments d'interface récurrents.
+  \item \texttt{modules/}: pages métier regroupées par domaine fonctionnel. C'est le coeur opérationnel du projet, là où l'utilisateur réalise concrètement ses actions de gestion.
+  \item \texttt{rapports/}: modules de génération de rapports. Ils permettent de synthétiser l'activité et de transformer les données brutes en informations utiles.
+  \item \texttt{assets/}: ressources front-end, style et scripts. Il contient les fichiers qui améliorent la présentation et l'interaction.
+  \item \texttt{index.php}: page principale du tableau de bord. Elle peut servir de porte d'entrée après authentification ou de page centrale de navigation.
+  \item \texttt{hash.php}: utilitaire pour générer des mots de passe hachés. Son existence montre une prise en compte minimale des bonnes pratiques de sécurité.
+  \item \texttt{README.md}: documentation d'utilisation simple. Ce fichier peut aider tout nouvel utilisateur ou développeur à comprendre rapidement comment lancer et utiliser le projet.
+  \item \textbf{auth/session.php} : vérifie les connexions et le rôle de l'utilisateur avant de lui donner accès à certaines pages. C'est un fichier clé pour le contrôle d'accès.
+  \item \textbf{includes/fonctions-auth.php} : regroupe les fonctions liées à l'authentification, à la vérification des identifiants et à la gestion des autorisations.
+  \item \textbf{includes/fonctions-produits.php} : contient la logique de lecture, d'enregistrement et de manipulation des produits.
+  \item \textbf{includes/fonctions-factures.php} : gère les calculs, l'enregistrement et l'affichage des opérations de facturation.
+  \item \textbf{assets/css/style.css} : gère l'apparence du site afin de rendre l'interface plus lisible et plus professionnelle.
+  \item \textbf{assets/js/scanner.js} : contient les scripts JavaScript nécessaires au scanner de code-barres et aux comportements interactifs liés à cette fonctionnalité.
+\end{itemize}
+L'architecture se base sur une séparation claire entre la logique métier et les pages de présentation. Les fonctions métier se trouvent dans \texttt{includes/}, et les pages de modules délèguent ces fonctions.
+
+Cette approche est comparable à un MVC léger:
+\begin{itemize}
+  \item Modèle: fichiers JSON et fonctions de lecture/écriture,
+  \item Vue: pages PHP qui affichent le HTML,
+  \item Contrôleur: pages de modules qui orchestrent la logique et les appels de fonctions.
+\end{itemize}
+
+\section{Protocoles de sécurité}
+Plusieurs mesures sont intégrées pour sécuriser l'application:
+\begin{itemize}
+  \item hash des mots de passe avec \texttt{password\_hash()},
+  \item vérification des identifiants avec \texttt{password\_verify()},
+  \item contrôle d'accès par rôle via \texttt{verifierRole()},
+  \item redirection vers la page de connexion si l'utilisateur n'est pas authentifié.
+\end{itemize}
+\section{Modules métiers}
+Les modules métiers sont organisés en fonction des besoins du système.
+
+\subsection{Module administration}
+Le répertoire \texttt{modules/admin/} contient les pages de gestion des comptes utilisateur:
+\begin{itemize}
+  \item ajout de compte,
+  \item modification et activation/désactivation,
+  \item suppression de compte.
+\end{itemize}
+
+Ces pages sont réservées au rôle \texttt{super\_admin}.
+
+\subsection{Module facturation}
+Le répertoire \texttt{modules/facturation/} gère la création de factures et l'affichage final d'une facture validée. La facturation se fait en trois étapes: initialisation, ajout de produits, validation.
+
+\subsection{Module produits}
+Le répertoire \texttt{modules/produits/} propose la recherche, l'ajout et la consultation du catalogue. Le manager et le \texttt{super\_admin} peuvent ajouter des produits, tandis que le caissier peut consulter le catalogue et l'utiliser pour facturer.
+
+\section{Gestion des utilisateurs}
+La gestion des utilisateurs repose sur un fichier JSON. Chaque utilisateur possède les champs suivants:
+\begin{itemize}
+  \item identifiant,
+  \item \texttt{mot\_de\_passe} (hashé),
+  \item role,
+  \item \texttt{nom\_complet},
+  \item \texttt{date\_creation},
+  \item actif.
+\end{itemize}
+
+\subsection{Rôles et permissions}
+Trois rôles sont définis:
+\begin{itemize}
+  \item \texttt{super\_admin}: accès complet,
+  \item \texttt{manager}: gestion des produits et consultation des rapports,
+  \item \texttt{caissier}: facturation et consultation des rapports.
+\end{itemize}
+
+La matrice de permissions est simple et garantit une séparation des privilèges.
+
+\subsection{Authentification}
+Le processus d'authentification est le suivant:
+\begin{enumerate}
+  \item l'utilisateur soumet le formulaire de connexion,
+  \item \texttt{verifierLogin()} recherche l'utilisateur dans le fichier JSON,
+  \item \texttt{password\_verify()} compare le mot de passe,
+  \item si la vérification réussit, \texttt{connecterUtilisateur()} initialise \texttt{\$\_SESSION['user']}.
+\end{enumerate}
+
+Cette logique est centralisée pour faciliter la maintenance et la sécurité.
+
+\section{Gestion des produits}
+Le catalogue de produits est stocké dans \texttt{data/produits.json}. Chaque produit contient:
+\begin{itemize}
+  \item \texttt{code\_barre},
+  \item nom,
+  \item \texttt{prix\_unitaire\_ht},
+  \item \texttt{date\_expiration},
+  \item \texttt{quantite\_stock},
+  \item \texttt{date\_enregistrement}.
+\end{itemize}
+
+\subsection{Fonctions de lecture/écriture}
+Les fonctions de base sont:
+\begin{itemize}
+  \item \texttt{lireProduits()} pour lire et décoder le JSON,
+  \item \texttt{sauvegarderProduits()} pour encoder et écrire le fichier,
+  \item \texttt{trouverProduit()} pour rechercher par code-barres.
+\end{itemize}
+
+Cette organisation permet d'éviter la duplication et de centraliser la logique de persistance.
+
+\subsection{Validation des produits}
+Lors de l'enregistrement d'un produit, le système vérifie:
+\begin{itemize}
+  \item la présence des champs obligatoires,
+  \item la validité numérique du prix et de la quantité,
+  \item la présence d'une date au format attendu.
+\end{itemize}
+
+Cette validation améliore la robustesse de l'application.
+
+\subsection{Authentification et sessions}
+Le projet utilise un formulaire de connexion accessible via \texttt{auth/login.php}. La page commence par \texttt{session\_start()} puis inclut \texttt{includes/fonctions-auth.php}, ce qui permet de réutiliser la logique d'authentification et de connexion.
+La fonction \texttt{verifierLogin()} recherche l'utilisateur dans \texttt{data/utilisateurs.json} et compare le mot de passe saisi avec le hachage stocké. Lors d'une connexion réussie, \texttt{connecterUtilisateur()} initialise la session avec l'identifiant, le nom complet et le rôle, puis redirige vers \texttt{index.php}.
+
+Le fichier \texttt{auth/session.php} contrôle l'état de la session avec \texttt{session\_status()}. Il expose deux fonctions clés: \texttt{verifierConnexion()} pour rediriger vers la page de login en cas d'accès non authentifié, et \texttt{verifierRole()} pour bloquer l'accès aux pages lorsque le rôle de l'utilisateur n'est pas autorisé. Cette organisation garantit que toutes les pages sensibles vérifient systématiquement la session et le rôle avant d'exécuter la logique métier.
+
+\subsection{Gestion des produits détaillée}
+La gestion produit repose sur trois pages principales: \texttt{modules/produits/enregistrer.php}, \texttt{modules/produits/liste.php} et \texttt{modules/produits/lire.php}. Le fichier \texttt{includes/fonctions-produits.php} fournit l'accès aux données et évite les duplications de code.
+Lorsque \texttt{modules/produits/enregistrer.php} reçoit un paramètre \texttt{code} en GET, il tente de trouver le produit existant à l'aide de \texttt{trouverProduit()}. Si le produit est trouvé, ses informations sont affichées; sinon, le formulaire d'enregistrement propose de saisir le nom, le prix, la date d'expiration et la quantité initiale.
+
+L'enregistrement d'un produit effectue plusieurs validations simples mais essentielles:
+\begin{itemize}
+  \item le nom est obligatoire,
+  \item le prix doit être numérique et strictement positif,
+  \item la quantité doit être un entier supérieur ou égal à zéro,
+  \item la date d'expiration doit être renseignée.
+\end{itemize}
+
+Une fois validé, le produit est ajouté au fichier \texttt{data/produits.json} avec la date d'enregistrement actuelle. Ce mécanisme rend le catalogue extensible sans modifier le code métier.
+
+\newpage
+
+\subsection{Support du scan de code-barres}
+Le scanner de code-barres est intégré dans les pages \texttt{modules/produits/enregistrer.php} et \texttt{modules/facturation/nouvelle\_facture.php}. Le script \texttt{assets/js/scanner.js} utilise la bibliothèque ZXing avec \texttt{BrowserBarcodeReader} pour décoder les codes via la caméra.
+Lorsque le code est détecté, la fonction JavaScript redirige automatiquement vers la page cible avec le paramètre \texttt{?code=XXX}. Cela accélère notablement l'enregistrement et la facturation, car l'utilisateur n'a plus besoin de taper manuellement des codes longs.
+
+\subsection{Structure des données produits}
+Chaque produit stocké dans le fichier JSON contient:
+\begin{itemize}
+  \item \texttt{code\_barre},
+  \item \texttt{nom},
+  \item \texttt{prix\_unitaire\_ht},
+  \item \texttt{date\_expiration},
+  \item \texttt{quantite\_stock},
+  \item \texttt{date\_enregistrement}.
+\end{itemize}
+Cette structure permet d'afficher un catalogue complet dans \texttt{modules/produits/liste.php} et de fournir des détails dans \texttt{modules/produits/lire.php}.
+
+\subsection{Validation et sauvegarde de la facture}
+La page \texttt{modules/facturation/afficher\_facture.php} calcule les totaux à partir des lignes de la facture et génère un identifiant unique du type \texttt{FAC-YYYYMMDD-NNN}. Elle récupère ensuite le tableau existant de factures dans \texttt{data/factures.json}, y ajoute la nouvelle facture, et réécrit le fichier JSON.
+Ce processus illustre bien le principe de persistance simple choisi pour le projet: un stockage par fichier qui reste transparent et éditable manuellement.
+
+\newpage
+
+\subsection{Rapports détaillés}
+Le rapport journalier et le rapport mensuel utilisent la même logique de base, mais appliquent des filtres différents sur le champ \texttt{date} de chaque facture. Le rapport journalier compare directement la date de chaque facture avec la date du jour. Le rapport mensuel utilise \texttt{substr(\$f['date'], 0, 7) === \$mois} pour conserver les factures du mois courant.
+Ces pages affichent en plus un tableau récapitulatif des factures retenues, ce qui permet de relier les chiffres globaux à des faits concrets.
+
+\subsection{Consistance des totaux}
+Les rapports additionnent le total TTC et la TVA collectée pour chaque facture filtrée. Cela permet de vérifier que le calcul effectué au moment de la validation de la facture est correctement répercuté dans le suivi commercial.
+
+\subsection{Exploitation des résultats}
+Les rapports sont conçus pour être consultés par le manager et le super administrateur. Ils fournissent un support de suivi simple mais efficace: suivi du nombre de factures, du chiffre d'affaires et du montant de TVA. Ces données sont essentielles pour un exercice de gestion commerciale, même dans un format léger.
+
+\newpage
+
+\section{Système de facturation}
+La facturation est le cœur du système. Elle repose sur une session PHP qui conserve l'état de la facture en cours.
+
+\subsection{Initialisation de la facture}
+\texttt{nouvelle\_facture.php} crée un tableau \texttt{\$\_SESSION['facture']} vide si celui-ci n'existe pas.
+
+\subsection{Ajout de produits}
+Lorsqu'un produit est ajouté, le système vérifie si le code-barres existe dans le catalogue. Si le produit est déjà présent dans la facture, la quantité est incrémentée ; sinon, un nouvel article est ajouté.
+
+\subsection{Calcul des totaux}
+Le calcul implique:
+\begin{itemize}
+  \item le total hors taxes (\texttt{total\_ht}),
+  \item la TVA à 18% (\texttt{tva}),
+  \item le total toutes taxes comprises (\texttt{total\_ttc}).
+\end{itemize}
+
+Le calcul du sous-total se fait produit par produit, puis les totaux sont agrégés.
+
+\subsection{Finalisation de la facture}
+À la validation, une facture est créée avec un identifiant unique de type \texttt{FAC-YYYYMMDD-NNN}. La facture contient:
+\begin{itemize}
+  \item la date,
+  \item l'heure,
+  \item le caissier,
+  \item la liste détaillée des articles,
+  \item les totaux.
+\end{itemize}
+
+La facture est ensuite ajoutée au fichier \texttt{data/factures.json}.
+
+\section{Gestion des rapports}
+Le système offre des rapports journaliers et mensuels.
+
+\subsection{Rapport journalier}
+\texttt{rapport\_journalier.php} lit toutes les factures et filtre celles dont la date correspond à la date du jour. Il calcule:
+\begin{itemize}
+  \item le nombre de factures,
+  \item le total TVA,
+  \item le total des ventes TTC.
+\end{itemize}
+
+Ce rapport aide à suivre le chiffre d'affaires quotidien.
+
+\subsection{Rapport mensuel}
+\texttt{rapport\_mensuel.php} filtre les factures du mois courant et agrège les totaux sur 30 jours. Il facilite l'analyse des tendances et la comparaison par période.
+
+\subsection{Rôles autorisés pour les rapports}
+Le rapport journalier est accessible aux caissiers, managers et super administrateurs. Le rapport mensuel est en revanche réservé aux managers et aux super administrateurs, ce qui reflète l'importance de disposer d'une vue consolidée plutôt que d'une simple consultation opérationnelle.
+
+\newpage
+
+\section{Gestion des sessions}
+La session PHP est utilisée pour:
+\begin{itemize}
+  \item la gestion de l'utilisateur connecté,
+  \item le stockage temporaire de la facture en cours,
+  \item le maintien de données entre les pages.
+\end{itemize}
+
+\subsection{Initialisation}
+\texttt{auth/session.php} commence par vérifier l'état de la session avec \texttt{session\_status()} pour éviter des redémarrages multiples.
+
+\subsection{Déconnexion}
+\texttt{auth/logout.php} détruit la session et supprime le cookie de session si nécessaire, assurant une déconnexion complète.
+
+\section{Gestion de la persistance}
+Les données sont persistées dans des fichiers JSON lisibles par l'homme.
+
+\subsection{Avantages}
+\begin{itemize}
+  \item Pas de serveur de base de données requis,
+  \item Installation simplifiée,
+  \item Format portable et éditable,
+  \item Rapide pour un petit volume de données.
+\end{itemize}
+\section{Gestion de l'interface utilisateur}
+L'interface utilise des pages PHP générant du HTML, avec un style CSS simple et un script JavaScript pour le scanner.
+
+\subsection{Composants réutilisables}
+\texttt{includes/header.php} et \texttt{includes/footer.php} fournissent l'en-tête et le pied de page communs à toutes les pages.
+
+\subsection{Navigation}
+Le tableau de bord présente des liens vers les principales fonctionnalités: nouvelle facture, produits, rapports, ajout produit, déconnexion.
+
+\section{Intégration du scanner de code-barres}
+Le scanner est implémenté avec la bibliothèque ZXing via JavaScript.
+
+\subsection{Fonctionnement}
+Le script \texttt{assets/js/scanner.js} active la caméra, analyse les images et redirige vers la page de traitement avec le code détecté dans l'URL.
+
+\subsection{Avantages}
+\begin{itemize}
+  \item Rapidité de saisie,
+  \item Réduction des erreurs de saisie,
+  \item Expérience proche d'une caisse moderne.
+\end{itemize}
+
+\section{Analyse du code}
+Le code est structuré pour favoriser la modularité et la réutilisation.
+
+\section{Diagramme de flux}
+Le flux principal de l'application est le suivant:
+
+\subsection{Flux de facturation}
+\begin{enumerate}
+  \item Ouverture nouvelle facture,
+  \item Scan ou saisie du produit,
+  \item Vérification du code-barres,
+  \item Ajout au panier de session,
+  \item Mise à jour des quantités,
+  \item Validation,
+  \item Enregistrement de la facture.
+\end{enumerate}
+
+\section{Difficultés rencontrées}
+\subsection{Citations des difficultés}
+\begin{itemize}
+  \item gestion du démarrage de session,
+  \item validation des données,
+  \item création d'un identifiant de facture unique,
+  \item intégration du scanner de code-barres,
+  \item gestion du stockage JSON.
+\end{itemize}
+
+
+\section{Solutions apportées}
+\begin{itemize}
+\item Utilisation d'un serveur local (Laragon). Cette solution a permis d'exécuter correctement les scripts PHP dans un environnement adapté et de mieux comprendre le rôle du serveur dans une application web.
+\item Vérification du code. La relecture attentive, la comparaison avec la syntaxe correcte et l'identification progressive des erreurs ont permis de corriger de nombreux problèmes.
+\item Tests progressifs des fonctionnalités. Au lieu d'attendre la fin du projet pour tout tester, nous avons vérifié les parties une à une, ce qui a facilité le repérage des erreurs et réduit la complexité du débogage.
+\end{itemize}
+
+\section{Limites du projet}
+Les principales limites sont:
+\begin{itemize}
+  \item absence de base de données,
+  \item absence de journalisation avancée,
+  \item absence de tests automatisés,
+  \item pas de support multi-utilisateurs simultanés.
+\end{itemize}
+
+
+\subsection{Approche adoptée}
+\begin{enumerate}
+  \item identification des besoins fonctionnels;
+  \item organisation des dossiers et des fichiers;
+  \item développement de l'authentification;
+  \item mise en place du catalogue de produits;
+  \item construction du module de facturation;
+  \item génération des rapports;
+  \item tests manuels et rédaction finale.
+\end{enumerate}
+
+
+\newpage
+
+\section{Conclusion et perspectives}
+
+Ce projet nous a permis de mieux comprendre le fonctionnement du PHP et des applications web dynamiques. À travers la réalisation d'une application de gestion de transactions de vente, nous avons découvert concrètement comment une page web peut recevoir des données, les traiter côté serveur, les enregistrer, puis restituer un résultat adapté à l'utilisateur. Cette expérience a transformé les notions théoriques étudiées au cours en compétences pratiques.
+
+L'un des apports majeurs de ce travail a été la compréhension de la relation entre l'interface et la logique métier. Nous avons constaté qu'une application web ne se limite pas à son apparence visuelle, mais repose sur une organisation interne rigoureuse: formulaires, traitements PHP, gestion des sessions, fonctions réutilisables, données persistantes et rapports. Cette prise de conscience est essentielle pour tout étudiant qui souhaite évoluer dans le domaine du développement logiciel.
+
+Le projet nous a également appris l'importance de la structure. Une arborescence claire, une séparation des responsabilités, des modules bien identifiés et des fonctions centralisées rendent le code plus compréhensible et plus fiable. Cette leçon dépasse largement le cadre du projet actuel: elle constitue une base méthodologique valable pour pratiquement tous les développements futurs.
+
+Sur le plan technique, nous avons consolidé notre maîtrise de plusieurs outils: HTML pour la structure, CSS pour la présentation, PHP pour les traitements, JSON pour la persistance, les sessions pour l'authentification et JavaScript pour certains comportements interactifs. Cette pluralité technologique montre que le développement web est un domaine transversal, dans lequel plusieurs langages et mécanismes coopèrent pour produire une application fonctionnelle.
+
+Le projet a aussi mis en évidence la nécessité d'intégrer des préoccupations de sécurité dès les premières étapes. Même dans une application académique, il est important de réfléchir au stockage des mots de passe, au contrôle d'accès, à la validation des entrées et à la gestion des sessions. Cette sensibilisation précoce est très bénéfique, car elle prépare à des pratiques plus rigoureuses dans des projets futurs.
+
+Enfin, cette monographie montre que le projet réalisé n'est pas un simple exercice ponctuel. Il constitue une base réaliste et évolutive. À partir de cette application, il serait possible de développer des versions plus avancées, plus ergonomiques et plus robustes. En ce sens, le projet remplit pleinement son double rôle: il répond aux exigences académiques du cours et il ouvre des perspectives d'amélioration et d'approfondissement.
+
+\end{document}
