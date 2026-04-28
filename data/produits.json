@@ -99,7 +99,7 @@
         "code_barre": "92495227",
         "nom": "Azzur Eau minérale",
         "prix_unitaire_ht": 500,
-        "date_expiration": "2026-04-23",
+        "date_expiration": "2027-04-23",
         "quantite_stock": 200,
         "date_enregistrement": "2026-04-23"
     },
@@ -107,7 +107,7 @@
         "code_barre": "8589509507002",
         "nom": "Aqua Eau 700 ml",
         "prix_unitaire_ht": 500,
-        "date_expiration": "2026-04-23",
+        "date_expiration": "2027-04-23",
         "quantite_stock": 27,
         "date_enregistrement": "2026-04-23"
     },
@@ -115,7 +115,7 @@
         "code_barre": "22216724",
         "nom": "American Water Eau 750 ml",
         "prix_unitaire_ht": 500,
-        "date_expiration": "2026-04-24",
+        "date_expiration": "2027-04-24",
         "quantite_stock": 40,
         "date_enregistrement": "2026-04-24"
     },
@@ -123,7 +123,7 @@
         "code_barre": "6009879794663",
         "nom": "Zest Jus 500 ml",
         "prix_unitaire_ht": 1000,
-        "date_expiration": "2026-04-25",
+        "date_expiration": "2027-04-25",
         "quantite_stock": 48,
         "date_enregistrement": "2026-04-25"
     }

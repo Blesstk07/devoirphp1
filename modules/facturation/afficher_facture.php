@@ -7,10 +7,10 @@ require_once('../../auth/session.php');
 verifierConnexion();
 verifierRole(['caissier', 'manager', 'super_admin']);
 
-$file = '../../data/factures.json';
+$fileFactures = __DIR__ . '/../../data/factures.json';
 
-$factures = file_exists($file)
-    ? json_decode(file_get_contents($file), true)
+$factures = file_exists($fileFactures)
+    ? json_decode(file_get_contents($fileFactures), true)
     : [];
 
 $id = $_GET['id'] ?? null;

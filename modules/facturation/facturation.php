@@ -6,7 +6,7 @@ verifierConnexion();
 session_start();
 
 $fileProduits = '../../data/produits.json';
-$fileFactures = '../../data/factures.json';
+$fileFactures = __DIR__ . '/../../data/factures.json';
 
 $produits = file_exists($fileProduits) ? json_decode(file_get_contents($fileProduits), true) : [];
 $factures = file_exists($fileFactures) ? json_decode(file_get_contents($fileFactures), true) : [];

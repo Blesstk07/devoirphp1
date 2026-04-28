@@ -1,18 +1,60 @@
 <?php
 
-require_once(__DIR__ . '/../../auth/session.php');
-require_once(__DIR__ . '/../../includes/fonctions-auth.php');
+require_once('../../auth/session.php');
+require_once('../../includes/fonctions-auth.php');
 
 verifierConnexion();
 
-// on récupère les utilisateurs depuis le fichier JSON
-$usersFile = __DIR__ . '/../../data/utilisateurs.json';
+$user = getUser();
 
-$users = [];
-
-if (file_exists($usersFile)) {
-    $users = json_decode(file_get_contents($usersFile), true);
+if (($user['role'] ?? '') !== 'super_admin') {
+    die("Accès refusé");
 }
+
+$file = __DIR__ . '/../../data/utilisateurs.json';
+
+$users = file_exists($file)
+    ? json_decode(file_get_contents($file), true)
+    : [];
+
+if (!is_array($users)) $users = [];
+
+/* =========================
+   AJOUT UTILISATEUR
+========================= */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
+
+    $users[] = [
+        "nom_complet" => $_POST['nom_complet'] ?? '',
+        "role" => $_POST['role'] ?? 'caissier'
+    ];
+
+    file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+
+    header("Location: gestion-compte.php");
+    exit;
+}
+
+/* =========================
+   SUPPRESSION UTILISATEUR
+========================= */
+if (isset($_GET['delete'])) {
+
+    $email = $_GET['delete'];
+
+    $users = array_filter($users, function($u) use ($email) {
+        return ($u['email'] ?? '') !== $email;
+    });
+
+    $users = array_values($users);
+
+    file_put_contents($file, json_encode($users, JSON_PRETTY_PRINT));
+
+    header("Location: gestion-compte.php");
+    exit;
+}
+
+$showForm = isset($_GET['add']);
 
 ?>
 <!DOCTYPE html>
@@ -22,102 +64,173 @@ if (file_exists($usersFile)) {
 <title>Gestion des comptes</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #0a0a0a;
-    color: white;
+
+/* ================= BASE ================= */
+body{
+    margin:0;
+    font-family:Arial;
+    background:#000;
+    color:#fff;
 }
 
-.container {
-    padding: 30px;
+/* ================= TITRE ================= */
+h1{
+    color:red;
+    padding:20px;
+    margin:0;
 }
 
-h1 {
-    color: red;
-    text-align: center;
+/* ================= TABLE ================= */
+table{
+    width:100%;
+    border-collapse:collapse;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background: #111;
+th, td{
+    border:1px solid #222;
+    padding:10px;
+    text-align:center;
 }
 
-th, td {
-    padding: 12px;
-    border: 1px solid #222;
-    text-align: center;
+th{
+    background:#111;
+    color:red;
 }
 
-th {
-    background: #1a1a1a;
-    color: red;
+/* ================= BOUTONS ================= */
+.btn{
+    padding:8px 12px;
+    border-radius:5px;
+    text-decoration:none;
+    color:white;
+    display:inline-block;
 }
 
-tr:hover {
-    background: #1c1c1c;
+.add{background:red;}
+.delete{background:#444;}
+.delete:hover{background:#ff3333;}
+
+/* ================= FORMULAIRE CENTRÉ ================= */
+.overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100vh;
+    background:rgba(0,0,0,0.8);
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-.badge {
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 12px;
+.form-box{
+    width:350px;
+    background:#111;
+    padding:25px;
+    border-radius:10px;
+    border:1px solid #222;
 }
 
-.caissier { background: #444; }
-.manager { background: #b30000; }
-.super_admin { background: #ff0000; }
+.form-box h2{
+    text-align:center;
+    color:red;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border:none;
+    border-radius:5px;
+    background:#1a1a1a;
+    color:#fff;
+}
+
+button{
+    width:100%;
+    padding:10px;
+    background:red;
+    border:none;
+    color:white;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.close{
+    display:block;
+    text-align:center;
+    margin-top:10px;
+    color:#aaa;
+    text-decoration:none;
+}
+
 </style>
-
 </head>
 
 <body>
 
-<div class="container">
+<h1>👤 Gestion des comptes</h1>
 
-<h1>👤 Gestion des Comptes</h1>
+<!-- BOUTON AJOUT -->
+<a class="btn add" href="gestion-compte.php?add=1">➕ Ajouter utilisateur</a>
 
+<!-- ================= TABLE ================= -->
 <table>
 
 <tr>
-    <th>Nom complet</th>
-    <th>Identifiant</th>
-    <th>Rôle</th>
-    <th>Actif</th>
-    <th>Date création</th>
+<th>Nom</th>
+<th>Rôle</th>
+<th>Action</th>
 </tr>
 
-<?php if (!empty($users)): ?>
-
-    <?php foreach ($users as $u): ?>
-
-    <tr>
-        <td><?= $u['nom_complet'] ?></td>
-        <td><?= $u['identifiant'] ?></td>
-        <td>
-            <span class="badge <?= $u['role'] ?>">
-                <?= $u['role'] ?>
-            </span>
-        </td>
-        <td><?= $u['actif'] ? 'Oui' : 'Non' ?></td>
-        <td><?= $u['date_creation'] ?></td>
-    </tr>
-
-    <?php endforeach; ?>
-
-<?php else: ?>
-
+<?php foreach ($users as $u): ?>
 <tr>
-    <td colspan="5">Aucun utilisateur trouvé</td>
+<td><?= $u['nom_complet'] ?? '' ?></td>
+<td><?= $u['role'] ?? '' ?></td>
+<td>
+<a class="btn delete"
+href="gestion-compte.php?delete=<?= urlencode($u['email'] ?? '') ?>"
+onclick="return confirm('Supprimer cet utilisateur ?')">
+🗑️ Supprimer
+</a>
+</td>
 </tr>
-
-<?php endif; ?>
+<?php endforeach; ?>
 
 </table>
 
+<!-- ================= FORMULAIRE CENTRÉ ================= -->
+<?php if ($showForm): ?>
+
+<div class="overlay">
+
+<div class="form-box">
+
+<h2>➕ Ajouter utilisateur</h2>
+
+<form method="POST">
+
+<input type="hidden" name="add_user" value="1">
+
+<input type="text" name="nom_complet" placeholder="Nom complet" required>
+
+<select name="role">
+    <option value="caissier">Caissier</option>
+    <option value="manager">Manager</option>
+    <option value="super_admin">Super Admin</option>
+</select>
+
+<button type="submit">Ajouter</button>
+
+</form>
+
+<a class="close" href="gestion-compte.php">❌ Fermer</a>
+
 </div>
+
+</div>
+
+<?php endif; ?>
 
 </body>
 </html>

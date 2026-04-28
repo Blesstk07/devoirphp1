@@ -1,31 +1,27 @@
 <?php
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+$file = __DIR__ . '/../data/factures.json';
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/TP/auth/session.php');
-require_once($_SERVER['DOCUMENT_ROOT'].'/TP/includes/fonctions-auth.php');
-
-verifierConnexion();
-
-/* Lecture des factures */
-$factures = file_exists($_SERVER['DOCUMENT_ROOT'].'/TP/data/factures.json')
-    ? json_decode(file_get_contents($_SERVER['DOCUMENT_ROOT'].'/TP/data/factures.json'), true)
+$factures = file_exists($file)
+    ? json_decode(file_get_contents($file), true)
     : [];
 
 if (!is_array($factures)) $factures = [];
 
-$today = date('Y-m-d');
+$month = date('Y-m');
 $total = 0;
+
+$ventes = [];
 
 foreach ($factures as $f) {
 
-    if (!isset($f['date']) || !isset($f['total'])) continue;
+    if (!isset($f['date'], $f['total'])) continue;
 
-    $date = substr($f['date'], 0, 10);
+    $mois = substr($f['date'], 0, 7);
 
-    if ($date === $today) {
+    if ($mois === $month) {
         $total += (float)$f['total'];
+        $ventes[] = $f;
     }
 }
 
@@ -34,36 +30,83 @@ foreach ($factures as $f) {
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Rapport Journalier</title>
+<title>Rapport mensuel</title>
 
 <style>
+
 body{
+    margin:0;
+    font-family:Arial;
     background:#000;
     color:#fff;
-    font-family:Arial;
     padding:20px;
+}
+
+h1{
+    color:red;
+    text-align:center;
 }
 
 .card{
     background:#111;
     padding:20px;
     border-radius:10px;
+    text-align:center;
+    margin-bottom:20px;
     border:1px solid #222;
+}
+
+.total{
+    font-size:28px;
+    color:red;
+    font-weight:bold;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th, td{
+    border:1px solid #222;
+    padding:10px;
     text-align:center;
 }
 
-h1{color:red;}
-</style>
+th{
+    background:#111;
+    color:red;
+}
 
+</style>
 </head>
+
 <body>
 
-<h1>📊 Rapport journalier</h1>
+<h1>📅 Rapport mensuel</h1>
 
 <div class="card">
-    <h2><?= number_format($total, 0, ',', ' ') ?> FC</h2>
-    <p>Ventes du jour (<?= $today ?>)</p>
+    <p>Total du mois</p>
+    <div class="total"><?= number_format($total, 0, ',', ' ') ?> FC</div>
 </div>
+
+<table>
+<tr>
+<th>Date</th>
+<th>ID Facture</th>
+<th>Total</th>
+</tr>
+
+<?php foreach ($ventes as $v): ?>
+<tr>
+<td><?= $v['date'] ?? '' ?></td>
+<td><?= $v['id'] ?? '---' ?></td>
+<td><?= number_format($v['total'], 0, ',', ' ') ?> FC</td>
+</tr>
+<?php endforeach; ?>
+
+</table>
 
 </body>
 </html>
