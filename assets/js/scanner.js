@@ -33,7 +33,6 @@ function startScanner(baseUrl) {
 
                     if (result && scanning) {
 
-<<<<<<< HEAD
                         const code = result.text;
 
                         // 🔥 anti double scan
@@ -50,25 +49,6 @@ function startScanner(baseUrl) {
                         setTimeout(() => {
                             window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
                         }, 150);
-=======
-                        const code = result.text.trim();
-
-                        // 🛑 anti double scan
-                        if (code === lastCode) return;
-
-                        lastCode = code;
-                        scanning = false;
-
-                        console.log("📦 SCAN OK:", code);
-
-                        // arrêter caméra proprement
-                        codeReader.reset();
-
-                        // légère pause pour éviter conflit navigateur
-                        setTimeout(() => {
-                            window.location.href = baseUrl + "?code=" + encodeURIComponent(code);
-                        }, 200);
->>>>>>> 2c5154d (modif 39)
                     }
 
                     if (err && !(err instanceof ZXing.NotFoundException)) {
@@ -78,11 +58,7 @@ function startScanner(baseUrl) {
             );
         })
         .catch(err => {
-<<<<<<< HEAD
             console.error("Erreur caméra:", err);
-=======
-            console.error("❌ Erreur caméra :", err);
->>>>>>> 2c5154d (modif 39)
             scanning = false;
         });
 }
