@@ -1,70 +1,7 @@
 [
     {
-        "code_barre": "3017620422003",
-        "nom": "Nutella 400g",
-        "prix_unitaire_ht": 4500,
-        "date_expiration": "2026-12-31",
-        "quantite_stock": 30,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
-        "code_barre": "6009804011278",
-        "nom": "Pepsi 150cl",
-        "prix_unitaire_ht": 1500,
-        "date_expiration": "2027-03-01",
-        "quantite_stock": 117,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
-        "code_barre": "6009804011155",
-        "nom": "Mirinda Orange 150cl",
-        "prix_unitaire_ht": 1500,
-        "date_expiration": "2027-03-10",
-        "quantite_stock": 110,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
-        "code_barre": "7622210449283",
-        "nom": "Biscuits Maria",
-        "prix_unitaire_ht": 1500,
-        "date_expiration": "2027-01-15",
-        "quantite_stock": 60,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
-        "code_barre": "6194002500026",
-        "nom": "Savon Pureline",
-        "prix_unitaire_ht": 2000,
-        "date_expiration": "2028-01-01",
-        "quantite_stock": 200,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
-        "code_barre": "8901030874299",
-        "nom": "Huile végétale 15L",
-        "prix_unitaire_ht": 60000,
-        "date_expiration": "2026-11-30",
-        "quantite_stock": 75,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
-        "code_barre": "5449000054227",
-        "nom": "Mirinda Orange 33cl",
-        "prix_unitaire_ht": 800,
-        "date_expiration": "2027-02-20",
-        "quantite_stock": 90,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
-        "code_barre": "3014260214631",
-        "nom": "Gateau",
-        "prix_unitaire_ht": 5000,
-        "date_expiration": "2026-10-10",
-        "quantite_stock": 50,
-        "date_enregistrement": "2026-04-21"
-    },
-    {
         "code_barre": "6009804011223",
+<<<<<<< HEAD
         "nom": "Pepsi 50cl",
         "prix_unitaire_ht": 800,
         "date_expiration": "2027-03-15",
@@ -190,5 +127,12 @@
         "date_expiration": "2026-04-25",
         "quantite_stock": 48,
         "date_enregistrement": "2026-04-25"
+=======
+        "nom": "Pepsi Jus 500 ml",
+        "prix_unitaire_ht": "1000",
+        "date_expiration": "2026-04-28",
+        "quantite_stock": 999,
+        "date_enregistrement": "2026-04-27 23:35:39"
+>>>>>>> 2c5154d (modif 39)
     }
 ]

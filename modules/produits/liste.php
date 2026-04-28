@@ -1,116 +1,72 @@
 <?php
-require_once('../../auth/session.php');
-require_once('../../includes/fonctions-produits.php');
 
+require_once(__DIR__ . '/../../auth/session.php');
 verifierConnexion();
 
-/* =========================
-LECTURE PRODUITS 
-========================= */
-$produits = lireProduits();
+$file = __DIR__ . '/../../data/produits.json';
 
-if (!is_array($produits)) {
-    $produits = [];
+if (!file_exists($file)) {
+    file_put_contents($file, "[]");
 }
+
+$produits = json_decode(file_get_contents($file), true);
+
+if (!is_array($produits)) $produits = [];
+
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Liste produits</title>
-
-<link rel="stylesheet" href="/TP/assets/css/style.css">
+<title>Produits</title>
 
 <style>
 body {
-    font-family: Arial;
-    background: #000;
     margin: 0;
-    padding: 20px;
+    font-family: Arial;
+    background: #0a0a0a;
     color: white;
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-}
-
-h2 {
+h1 {
     text-align: center;
-    color: #ff6600;
-    margin-bottom: 20px;
-}
-
-.box {
-    background: #111;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(255,102,0,0.15);
-}
-
-/* BUTTONS */
-.btn {
-    display: inline-block;
-    padding: 10px 15px;
-    background: linear-gradient(45deg, #ff6600, #ff3300);
-    color: white;
-    text-decoration: none;
-    border-radius: 10px;
-    margin-right: 8px;
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-.btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #ff6600;
+    color: red;
+    margin-top: 20px;
 }
 
 /* TABLE */
 table {
-    width: 100%;
+    width: 95%;
+    margin: auto;
+    margin-top: 20px;
     border-collapse: collapse;
-    margin-top: 15px;
-    background: #1a1a1a;
+    background: #111;
     border-radius: 10px;
     overflow: hidden;
 }
 
-th {
-    background: #ff6600;
-    color: white;
+th, td {
     padding: 12px;
+    border: 1px solid #222;
+    text-align: center;
 }
 
-td {
-    padding: 12px;
-    border-bottom: 1px solid #333;
-    text-align: center;
+th {
+    background: red;
 }
 
 tr:hover {
-    background: #222;
+    background: #1a1a1a;
 }
 
-/* STOCK COLORS */
-.danger { color: #ff3b3b; font-weight: bold; }
-.warning { color: #ffb020; font-weight: bold; }
-.ok { color: #00ff88; font-weight: bold; }
-
-/* TOP */
-.top {
-    margin-bottom: 15px;
-    text-align: center;
+/* STOCK */
+.low {
+    color: orange;
 }
 
-/* DEBUG */
-.debug {
-    background: #222;
-    padding: 10px;
-    margin-top: 10px;
-    font-size: 12px;
-    color: #aaa;
+.ok {
+    color: lime;
 }
 </style>
 
@@ -118,75 +74,35 @@ tr:hover {
 
 <body>
 
-<div class="container">
-
-<div class="box">
-
-<h2>📦 Liste des produits</h2>
-
-<div class="top">
-    <a href="/TP/index.php" class="btn">🏠 Dashboard</a>
-    <a href="enregistrer.php" class="btn">➕ Ajouter produit</a>
-</div>
+<h1>📦 Stock Produits</h1>
 
 <table>
 
 <tr>
-    <th>Code barre</th>
+    <th>Code</th>
     <th>Nom</th>
-    <th>Prix HT</th>
+    <th>Prix</th>
     <th>Stock</th>
+    <th>Enregistrement</th>
+    <th>Expiration</th>
 </tr>
 
-<?php if (!empty($produits)): ?>
+<?php foreach ($produits as $p): ?>
 
-    <?php foreach ($produits as $p): ?>
+<?php $class = ($p['quantite_stock'] <= 10) ? 'low' : 'ok'; ?>
 
-        <?php
-        $code = $p['code_barre'] ?? '';
-        $nom = $p['nom'] ?? '';
-        $prix = $p['prix_unitaire_ht'] ?? 0;
-        $stock = $p['quantite_stock'] ?? 0;
-        ?>
+<tr>
+    <td><?= $p['code_barre'] ?></td>
+    <td><?= $p['nom'] ?></td>
+    <td><?= $p['prix_unitaire_ht'] ?> FC</td>
+    <td class="<?= $class ?>"><?= $p['quantite_stock'] ?></td>
+    <td><?= $p['date_enregistrement'] ?></td>
+    <td><?= $p['date_expiration'] ?></td>
+</tr>
 
-        <tr>
-            <td><?= htmlspecialchars($code) ?></td>
-            <td><?= htmlspecialchars($nom) ?></td>
-            <td><?= number_format($prix, 0, ',', ' ') ?> CDF</td>
-
-            <td>
-                <?php if ($stock <= 0): ?>
-                    <span class="danger">Rupture</span>
-
-                <?php elseif ($stock <= 5): ?>
-                    <span class="warning"><?= $stock ?></span>
-
-                <?php else: ?>
-                    <span class="ok"><?= $stock ?></span>
-                <?php endif; ?>
-            </td>
-        </tr>
-
-    <?php endforeach; ?>
-
-<?php else: ?>
-
-    <tr>
-        <td colspan="4">Aucun produit disponible</td>
-    </tr>
-
-<?php endif; ?>
+<?php endforeach; ?>
 
 </table>
-
-<!-- DEBUG -->
-<div class="debug">
-    Nb produits : <?= count($produits) ?>
-</div>
-
-</div>
-
-</div>
 
 </body>
 </html>

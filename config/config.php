@@ -1,21 +1,26 @@
 <?php
-// ==============================
-//  CONFIGURATION GLOBALE
-// ==============================
 
-//  Chemins des données
-define('DATA_PRODUITS', __DIR__ . '/../data/produits.json');
-define('DATA_FACTURES', __DIR__ . '/../data/factures.json');
-define('DATA_USERS', __DIR__ . '/../data/utilisateurs.json');
+/* =========================
+   CONFIGURATION GLOBALE
+========================= */
 
-//  Paramètres du système
-define('TAUX_TVA', 0.18);
-define('DEVISE', 'CDF');
+/* 📊 TVA du projet (TP = 18%) */
+define("TVA", 0.18);
 
-//  Infos du système
-define('NOM_BOUTIQUE', 'Super Marché Code Runner');
+/* 📁 CHEMINS DES DONNÉES */
+define("DATA_PRODUITS", __DIR__ . "/../data/produits.json");
+define("DATA_FACTURES", __DIR__ . "/../data/factures.json");
+define("DATA_UTILISATEURS", __DIR__ . "/../data/utilisateurs.json");
 
-//  Format date/heure
-define('FORMAT_DATE', 'Y-m-d');
-define('FORMAT_HEURE', 'H:i:s');
-?>
+/* 🧾 PREFIX FACTURE */
+define("PREFIX_FACTURE", "FAC-");
+
+/* ⏱ FORMAT DATE */
+define("FORMAT_DATE", "Y-m-d");
+define("FORMAT_HEURE", "H:i:s");
+
+/* 🔐 SÉCURITÉ SESSION */
+define("SESSION_TIMEOUT", 1800); // 30 minutes
+
+/* 🏪 NOM DU SYSTÈME */
+define("APP_NAME", "Super Marché CodeRunner");

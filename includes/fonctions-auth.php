@@ -1,12 +1,13 @@
 <?php
-// ==============================
-//  AUTHENTIFICATION UTILISATEURS
-// ==============================
+
+// =========================
+// AUTHENTIFICATION SYSTEM
+// =========================
 
 /**
- * Lire tous les utilisateurs
+ * Charger les utilisateurs
  */
-function lireUtilisateurs() {
+function chargerUtilisateurs() {
 
     $file = __DIR__ . '/../data/utilisateurs.json';
 
@@ -19,19 +20,16 @@ function lireUtilisateurs() {
 }
 
 /**
- * Vérifier login utilisateur
+ * Trouver un utilisateur par identifiant
  */
-function verifierLogin($id, $mot_de_passe) {
+function trouverUtilisateur($identifiant) {
 
-    $utilisateurs = lireUtilisateurs();
+    $users = chargerUtilisateurs();
 
-    foreach ($utilisateurs as $u) {
+    foreach ($users as $user) {
 
-        if (
-            $u['identifiant'] === $id &&
-            password_verify($mot_de_passe, $u['mot_de_passe'])
-        ) {
-            return $u;
+        if ($user['identifiant'] === $identifiant && $user['actif'] === true) {
+            return $user;
         }
     }
 
@@ -39,7 +37,25 @@ function verifierLogin($id, $mot_de_passe) {
 }
 
 /**
- * Connexion utilisateur (session)
+ * Vérifier login
+ */
+function verifierLogin($identifiant, $mot_de_passe) {
+
+    $user = trouverUtilisateur($identifiant);
+
+    if (!$user) {
+        return null;
+    }
+
+    if (password_verify($mot_de_passe, $user['mot_de_passe'])) {
+        return $user;
+    }
+
+    return null;
+}
+
+/**
+ * Connexion utilisateur (SESSION)
  */
 function connecterUtilisateur($user) {
 
@@ -53,4 +69,59 @@ function connecterUtilisateur($user) {
         'role' => $user['role']
     ];
 }
+
+/**
+ * Vérifier si connecté
+ */
+function estConnecte() {
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    return isset($_SESSION['user']);
+}
+
+/**
+ * Récupérer utilisateur connecté
+ */
+function utilisateurConnecte() {
+
+    if (!estConnecte()) return null;
+
+    return $_SESSION['user'];
+}
+
+/**
+ * Vérifier rôle
+ */
+function verifierRole($rolesAutorises = []) {
+
+    $user = utilisateurConnecte();
+
+    if (!$user) {
+        header("Location: /TP/auth/login.php");
+        exit;
+    }
+
+    if (!in_array($user['role'], $rolesAutorises)) {
+        die("⛔ Accès refusé");
+    }
+}
+
+/**
+ * Déconnexion
+ */
+function deconnecter() {
+
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    session_destroy();
+
+    header("Location: /TP/auth/login.php");
+    exit;
+}
+
 ?>

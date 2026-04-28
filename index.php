@@ -1,240 +1,226 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 require_once('auth/session.php');
-require_once('includes/fonctions-produits.php');
-require_once('includes/fonctions-factures.php');
+require_once('includes/fonctions-auth.php');
 
 verifierConnexion();
 
-$user = $_SESSION['user'];
+$user = getUser();
+$role = $user['role'] ?? '';
 
-$produits = lireProduits();
-$produits = is_array($produits) ? $produits : [];
+$page = $_GET['page'] ?? 'home';
 
-$factures = file_exists('data/factures.json')
-    ? json_decode(file_get_contents('data/factures.json'), true)
-    : [];
-$factures = is_array($factures) ? $factures : [];
-
-$nbProduits = count($produits);
-$nbFactures = count($factures);
-
-$totalVentes = 0;
-$ventesJour = 0;
-$today = date("Y-m-d");
-
-$stockFaible = [];
-
-foreach ($factures as $f) {
-    $totalVentes += $f['total_ttc'] ?? 0;
-
-    if (!empty($f['date']) && substr($f['date'], 0, 10) === $today) {
-        $ventesJour += $f['total_ttc'] ?? 0;
-    }
-}
-
-foreach ($produits as $p) {
-    if (($p['quantite_stock'] ?? 0) <= 5) {
-        $stockFaible[] = $p;
-    }
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Caisse</title>
+<title>CAISSE PRO</title>
 
 <style>
-/* =======================
-   GLOBAL
-======================= */
 body {
     margin: 0;
     font-family: Arial;
-    background: #0f0f0f;
+    background: #0a0a0a;
     color: white;
-}
-
-/* =======================
-   LAYOUT
-======================= */
-.container {
     display: flex;
 }
 
-/* =======================
-   SIDEBAR
-======================= */
+/* SIDEBAR */
 .sidebar {
-    width: 250px;
-    background: #1a1a1a;
+    width: 260px;
     height: 100vh;
-    padding: 20px;
-    position: fixed;
+    background: #111;
+    border-right: 2px solid red;
+    padding: 15px;
 }
 
-.sidebar h2 {
-    color: #ff6600;
+.logo {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 
-.sidebar a {
-    display: block;
+.user {
+    background: #1a1a1a;
     padding: 10px;
-    margin: 5px 0;
-    color: white;
-    text-decoration: none;
     border-radius: 8px;
-    transition: 0.3s;
+    margin-bottom: 15px;
 }
 
-.sidebar a:hover {
-    background: #ff6600;
+/* MENU */
+.menu a {
+    display: block;
+    padding: 12px;
+    margin: 8px 0;
+    text-decoration: none;
+    color: white;
+    background: #1a1a1a;
+    border-radius: 6px;
+    transition: 0.2s;
 }
 
-/* =======================
-   MAIN
-======================= */
+.menu a:hover {
+    background: red;
+}
+
+/* MAIN */
 .main {
-    margin-left: 270px;
+    flex: 1;
     padding: 20px;
-    width: 100%;
 }
 
-/* =======================
-   CARDS
-======================= */
+/* CARDS */
 .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .card {
-    background: #1a1a1a;
+    flex: 1;
+    min-width: 200px;
+    background: #111;
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 10px;
     text-align: center;
-    transition: 0.3s;
+    border: 1px solid #222;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 15px #ff6600;
-}
-
-/* =======================
-   SECTION
-======================= */
-.section {
-    background: #1a1a1a;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 12px;
-}
-
-/* =======================
-   ALERTES
-======================= */
-.danger {
-    background: rgba(255,0,0,0.2);
-    border-left: 5px solid red;
-    padding: 10px;
-    margin: 5px 0;
-}
-
-.good {
-    background: rgba(0,255,0,0.1);
-    border-left: 5px solid green;
-    padding: 10px;
-}
-
-/* =======================
-   HEADER USER
-======================= */
-.topbar {
-    background: #1a1a1a;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+.card h2 {
+    color: red;
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="container">
+<!-- SIDEBAR -->
+<div class="sidebar">
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h2>💳 Menu Principal</h2>
+<div class="logo">🛒 CAISSE PRO</div>
 
-        <a href="index.php">🏠 Dashboard</a>
-        <a href="modules/facturation/nouvelle_facture.php">🧾 Nouvelle facture</a>
-        <a href="modules/produits/liste.php">📦 Produits</a>
-        <a href="modules/produits/enregistrer.php">➕ Ajouter produit</a>
-        <a href="rapports/rapport_journalier.php">📊 Journalier</a>
-        <a href="rapports/rapport_mensuel.php">📈 Mensuel</a>
+<div class="user">
+<strong><?= $user['nom_complet'] ?></strong><br>
+<small><?= $role ?></small>
+</div>
 
-        <?php if ($user['role'] === 'super_admin'): ?>
-            <a href="modules/admin/gestion_compte.php">⚙️ Admin</a>
-        <?php endif; ?>
+<div class="menu">
 
-        <a href="auth/logout.php">🚪 Déconnexion</a>
-    </div>
+<a href="index.php?page=home">🏠 Accueil</a>
 
-    <!-- MAIN -->
-    <div class="main">
+<?php if ($role === 'caissier'): ?>
 
-        <div class="topbar">
-            <h2>Bienvenue <?= htmlspecialchars($user['nom_complet']) ?></h2>
-            <p><?= $user['role'] ?></p>
-        </div>
+    <a href="modules/facturation/facturation.php">🧾 Facturation</a>
+    <a href="index.php?page=rapports">📊 Rapports</a>
 
-        <!-- CARDS -->
-        <div class="cards">
+<?php elseif ($role === 'manager'): ?>
 
-            <div class="card">
-                <h2><?= $nbFactures ?></h2>
-                <p>Factures</p>
-            </div>
+    <a href="modules/produits/liste.php">📦 Produits</a>
+    <a href="modules/produits/enregistrer.php">➕ Ajouter produit</a>
+    <a href="modules/facturation/facturation.php">🧾 Facturation</a>
+    <a href="index.php?page=rapports">📊 Rapports</a>
 
-            <div class="card">
-                <h2><?= $nbProduits ?></h2>
-                <p>Produits</p>
-            </div>
+<?php elseif ($role === 'super_admin'): ?>
 
-            <div class="card">
-                <h2><?= number_format($totalVentes, 0, ',', ' ') ?> CDF</h2>
-                <p>Total ventes</p>
-            </div>
+    <a href="index.php?page=dashboard">📊 Dashboard</a>
+    <a href="modules/produits/liste.php">📦 Produits</a>
+    <a href="modules/produits/enregistrer.php">➕ Ajouter produit</a>
+    <a href="modules/facturation/facturation.php">🧾 Facturation</a>
+    <a href="index.php?page=rapports">📊 Rapports</a>
 
-            <div class="card">
-                <h2><?= number_format($ventesJour, 0, ',', ' ') ?> CDF</h2>
-                <p>Ventes du jour</p>
-            </div>
+<?php endif; ?>
 
-        </div>
+<a href="auth/logout.php">🚪 Déconnexion</a>
 
-        <!-- STOCK -->
-        <div class="section">
-            <h2>⚠️ Stock faible</h2>
+</div>
 
-            <?php if (!empty($stockFaible)): ?>
-                <?php foreach ($stockFaible as $p): ?>
-                    <div class="danger">
-                        <?= $p['nom'] ?> — <?= $p['quantite_stock'] ?>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="good">✔ Aucun stock faible</div>
-            <?php endif; ?>
-        </div>
+</div>
 
-    </div>
+<!-- MAIN -->
+<div class="main">
+
+<?php if ($page === 'home'): ?>
+
+<div class="card">
+<h1>Bienvenue <?= $user['nom_complet'] ?></h1>
+<p>Système de caisse opérationnel</p>
+</div>
+
+<?php elseif ($page === 'dashboard'): ?>
+
+<?php
+require_once('includes/fonctions-produits.php');
+require_once('includes/fonctions-factures.php');
+
+$produits = lireProduits();
+$factures = lireFactures();
+?>
+
+<h1 style="color:red;">📊 Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+<h2><?= count($produits) ?></h2>
+<p>Produits</p>
+</div>
+
+<div class="card">
+<h2><?= count($factures) ?></h2>
+<p>Factures</p>
+</div>
+
+</div>
+
+<?php elseif ($page === 'rapports'): ?>
+
+<?php
+require_once('includes/fonctions-factures.php');
+
+$factures = lireFactures();
+
+$today = date('Y-m-d');
+$currentMonth = date('Y-m');
+
+$totalJour = 0;
+$totalMois = 0;
+
+foreach ($factures as $f) {
+
+    $date = substr($f['date'] ?? '', 0, 10);
+    $mois = substr($f['date'] ?? '', 0, 7);
+
+    if ($date === $today) {
+        $totalJour += $f['total'] ?? 0;
+    }
+
+    if ($mois === $currentMonth) {
+        $totalMois += $f['total'] ?? 0;
+    }
+}
+?>
+
+<h1 style="color:red;">📊 Rapports</h1>
+
+<div class="cards">
+
+<div class="card">
+<h2><?= $totalJour ?> FC</h2>
+<p>Rapport journalier</p>
+</div>
+
+<div class="card">
+<h2><?= $totalMois ?> FC</h2>
+<p>Rapport mensuel</p>
+</div>
+
+</div>
+
+<?php endif; ?>
+
 </div>
 
 </body>

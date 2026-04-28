@@ -1,26 +1,26 @@
-[
-    {
-        "identifiant": "Bless",
-        "mot_de_passe": "$2y$10$6OZDDmtA5O7TxXXty86sDOCkwz8nXfIz.jA376L97bLInEKg\/zqJy",
-        "role": "super_admin",
-        "nom_complet": "Bless, l'Admin Principal",
-        "date_creation": "2026-04-21",
-        "actif": true
-    },
-    {
-        "identifiant": "Rubis",
-        "mot_de_passe": "$2y$10$vvRSqHBFf5uuagt9TYTh5e8yGjQ8dWRztvx4L7bA\/3fFNbe4ig3ci",
-        "role": "caissier",
-        "nom_complet": "Rubis, le Caissier Principal",
-        "date_creation": "2026-04-23",
-        "actif": 1
-    },
-    {
-        "identifiant": "Esther",
-        "mot_de_passe": "$2y$10$Nd1GJKYhlHnJsKKZsPG\/L.ngKW07dd1FU9yy6sGwujDP.jLMC\/Cjq",
-        "role": "manager",
-        "nom_complet": "Esther, la Manager Principale",
-        "date_creation": "2026-04-23",
-        "actif": 1
-    }
+ [
+  {
+    "identifiant": "Le Caissier",
+    "mot_de_passe": "$2y$10$w2Xl9gmSz7UTgyLCo9QZaeUb7krweON454eN458Zh3VBNC7AzIwCW",
+    "role": "caissier",
+    "nom_complet": "Rubis Mumpubi",
+    "date_creation": "2026-04-27",
+    "actif": true
+  },
+  {
+    "identifiant": "La Manager",
+    "mot_de_passe": "$2y$10$oPvEV2A/DOMzTqQ2f3E3Pe6m9/dLht9UxFnzgLtMZzbRNDeLl/mku",
+    "role": "manager",
+    "nom_complet": "Esther Civava",
+    "date_creation": "2026-04-27",
+    "actif": true
+  },
+  {
+    "identifiant": "Le Super Admin",
+    "mot_de_passe": "$2y$10$O7iBrho3c8FMGYoPxMq8KeO3rO5SsW32TdrSEGaH1J71eoDBSL5FG",
+    "role": "super_admin",
+    "nom_complet": "Bless Tshimanga",
+    "date_creation": "2026-04-27",
+    "actif": true
+  }
 ]

@@ -1,10 +1,16 @@
 <?php
-session_start();
+// Démarrer la session si elle n'existe pas
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-//  Vider toutes les variables de session
+// 🧹 Supprimer toutes les variables de session
 $_SESSION = [];
 
-//  Supprimer les cookies de sessions si présent
+// 🧨 Détruire la session côté serveur
+session_destroy();
+
+// 🍪 Supprimer le cookie de session (sécurité renforcée)
 if (ini_get("session.use_cookies")) {
 
     $params = session_get_cookie_params();
@@ -20,10 +26,6 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-//  Détruire la session
-session_destroy();
-
-
-header("Location: ../auth/login.php");
+// 🔁 Redirection vers login
+header("Location: login.php");
 exit;
-?>

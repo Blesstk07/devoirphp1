@@ -1,62 +1,29 @@
 <?php
-// ==============================
-//  PRODUITS (VERSION PROPRE 🔥)
-// ==============================
 
-define('FICHIER_PRODUITS', __DIR__ . '/../data/produits.json');
-
+require_once(__DIR__ . '/../config/config.php');
 
 /* =========================
    LIRE PRODUITS
 ========================= */
 function lireProduits() {
 
-    if (!file_exists(FICHIER_PRODUITS)) {
-        file_put_contents(FICHIER_PRODUITS, json_encode([], JSON_PRETTY_PRINT));
+    if (!file_exists(DATA_PRODUITS)) {
         return [];
     }
 
-    $contenu = file_get_contents(FICHIER_PRODUITS);
-
-    if (empty($contenu)) {
-        return [];
-    }
-
-    $produits = json_decode($contenu, true);
-
-    if (!is_array($produits)) {
-        return [];
-    }
-
-    return $produits;
+    $data = file_get_contents(DATA_PRODUITS);
+    return json_decode($data, true) ?? [];
 }
 
-
 /* =========================
-   SAUVEGARDER PRODUITS
-========================= */
-function sauvegarderProduits($produits) {
-
-    if (!is_array($produits)) {
-        return false;
-    }
-
-    return file_put_contents(
-        FICHIER_PRODUITS,
-        json_encode($produits, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-    );
-}
-
-
-/* =========================
-   TROUVER PRODUIT
+   TROUVER PRODUIT PAR CODE BARRE
 ========================= */
 function trouverProduit($code) {
 
     $produits = lireProduits();
 
     foreach ($produits as $p) {
-        if (($p['code_barre'] ?? '') == $code) {
+        if ($p['code_barre'] === $code) {
             return $p;
         }
     }
@@ -64,25 +31,38 @@ function trouverProduit($code) {
     return null;
 }
 
+/* =========================
+   VERIFIER EXPIRATION
+========================= */
+function produitExpire($produit) {
+
+    if (!isset($produit['date_expiration'])) {
+        return false;
+    }
+
+    return strtotime($produit['date_expiration']) < time();
+}
 
 /* =========================
-   METTRE À JOUR STOCK
+   DECREMENTER STOCK
 ========================= */
-function mettreAJourStock($code, $quantiteVendue) {
+function diminuerStock($code, $quantite) {
 
     $produits = lireProduits();
 
     foreach ($produits as &$p) {
 
-        if (($p['code_barre'] ?? '') == $code) {
+        if ($p['code_barre'] === $code) {
 
-            $stock = $p['quantite_stock'] ?? 0;
+            $p['quantite_stock'] -= $quantite;
 
-            $p['quantite_stock'] = max(0, $stock - $quantiteVendue);
+            if ($p['quantite_stock'] < 0) {
+                $p['quantite_stock'] = 0;
+            }
 
             break;
         }
     }
 
-    sauvegarderProduits($produits);
+    file_put_contents(DATA_PRODUITS, json_encode($produits, JSON_PRETTY_PRINT));
 }
