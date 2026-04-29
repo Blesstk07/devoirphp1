@@ -64,106 +64,210 @@ $showForm = isset($_GET['add']);
 <title>Gestion des comptes</title>
 
 <style>
+/* =========================
+   CYBERPUNK GESTION COMPTES
+========================= */
 
-/* ================= BASE ================= */
 body{
     margin:0;
-    font-family:Arial;
-    background:#000;
+    font-family:'Segoe UI', sans-serif;
+    background:#050505;
     color:#fff;
 }
 
-/* ================= TITRE ================= */
+/* ===== GRID BACKGROUND ===== */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,0,120,0.05) 1px, transparent 1px);
+    background-size:50px 50px;
+    animation:gridMove 8s linear infinite;
+    z-index:-2;
+}
+
+@keyframes gridMove{
+    from{transform:translateY(0);}
+    to{transform:translateY(50px);}
+}
+
+/* ===== GLOW ===== */
+body::after{
+    content:"";
+    position:fixed;
+    width:600px;
+    height:600px;
+    top:10%;
+    left:50%;
+    transform:translateX(-50%);
+    background:radial-gradient(circle, rgba(255,0,120,0.25), transparent 60%);
+    filter:blur(100px);
+    z-index:-1;
+    animation:pulse 5s infinite alternate;
+}
+
+@keyframes pulse{
+    from{transform:translateX(-50%) scale(1); opacity:0.5;}
+    to{transform:translateX(-50%) scale(1.3); opacity:1;}
+}
+
+/* ===== TITLE ===== */
 h1{
-    color:red;
-    padding:20px;
     margin:0;
-}
-
-/* ================= TABLE ================= */
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th, td{
-    border:1px solid #222;
-    padding:10px;
+    padding:20px;
     text-align:center;
+    color:#00fff2;
+    text-shadow:0 0 12px #00fff2;
+    letter-spacing:2px;
+}
+
+/* ===== ACTION BUTTON ===== */
+.btn{
+    display:inline-block;
+    margin:15px;
+    padding:10px 14px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+    transition:0.25s;
+}
+
+.add{
+    background:linear-gradient(45deg,#ff0077,#ff2e93);
+    color:#fff;
+    box-shadow:0 0 15px rgba(255,0,120,0.3);
+}
+
+.add:hover{
+    transform:scale(1.05);
+}
+
+/* ===== TABLE ===== */
+table{
+    width:95%;
+    margin:20px auto;
+    border-collapse:collapse;
+    background:rgba(20,20,20,0.8);
+    backdrop-filter:blur(10px);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 25px rgba(255,0,120,0.1);
 }
 
 th{
-    background:#111;
-    color:red;
-}
-
-/* ================= BOUTONS ================= */
-.btn{
-    padding:8px 12px;
-    border-radius:5px;
-    text-decoration:none;
+    background:linear-gradient(90deg,#ff0077,#ff2e93);
     color:white;
-    display:inline-block;
+    padding:12px;
+    text-transform:uppercase;
+    letter-spacing:1px;
 }
 
-.add{background:red;}
-.delete{background:#444;}
-.delete:hover{background:#ff3333;}
+td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+}
 
-/* ================= FORMULAIRE CENTRÉ ================= */
+tr:hover td{
+    background:rgba(255,0,120,0.08);
+}
+
+/* ===== DELETE BUTTON ===== */
+.delete{
+    background:#111;
+    border:1px solid rgba(255,0,120,0.3);
+    padding:6px 10px;
+    border-radius:6px;
+    color:#fff;
+    transition:0.2s;
+}
+
+.delete:hover{
+    background:#ff003c;
+    box-shadow:0 0 10px rgba(255,0,120,0.4);
+}
+
+/* ===== OVERLAY FORM ===== */
 .overlay{
     position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100vh;
-    background:rgba(0,0,0,0.8);
+    inset:0;
+    background:rgba(0,0,0,0.85);
     display:flex;
     justify-content:center;
     align-items:center;
 }
 
+/* ===== FORM BOX ===== */
 .form-box{
-    width:350px;
-    background:#111;
+    width:360px;
+    background:rgba(20,20,20,0.9);
     padding:25px;
-    border-radius:10px;
-    border:1px solid #222;
+    border-radius:12px;
+    border:1px solid rgba(255,0,120,0.3);
+    box-shadow:0 0 25px rgba(255,0,120,0.2);
+    animation:fadeIn 0.5s ease;
 }
 
 .form-box h2{
     text-align:center;
-    color:red;
+    color:#ff0077;
+    text-shadow:0 0 8px #ff0077;
 }
 
+/* ===== INPUTS ===== */
 input, select{
     width:100%;
     padding:10px;
     margin:10px 0;
-    border:none;
-    border-radius:5px;
-    background:#1a1a1a;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.1);
+    background:rgba(255,255,255,0.05);
     color:#fff;
+    outline:none;
 }
 
+input:focus, select:focus{
+    border-color:#ff0077;
+    box-shadow:0 0 10px rgba(255,0,120,0.3);
+}
+
+/* ===== SUBMIT ===== */
 button{
     width:100%;
-    padding:10px;
-    background:red;
+    padding:12px;
     border:none;
+    border-radius:8px;
+    background:linear-gradient(45deg,#ff003c,#ff0077);
     color:white;
-    border-radius:5px;
+    font-weight:bold;
     cursor:pointer;
+    transition:0.25s;
 }
 
+button:hover{
+    transform:scale(1.03);
+}
+
+/* ===== CLOSE LINK ===== */
 .close{
     display:block;
     text-align:center;
-    margin-top:10px;
+    margin-top:12px;
     color:#aaa;
     text-decoration:none;
 }
 
+.close:hover{
+    color:#ff0077;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(15px);}
+    to{opacity:1; transform:translateY(0);}
+}
 </style>
 </head>
 

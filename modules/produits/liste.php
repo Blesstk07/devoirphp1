@@ -22,51 +22,136 @@ if (!is_array($produits)) $produits = [];
 <title>Produits</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: #0a0a0a;
-    color: white;
+/* =========================
+   CYBERPUNK LISTE PRODUITS
+========================= */
+
+body{
+    margin:0;
+    font-family:'Segoe UI', sans-serif;
+    background:#050505;
+    color:#fff;
+    min-height:100vh;
+    overflow-x:hidden;
 }
 
-h1 {
-    text-align: center;
-    color: red;
-    margin-top: 20px;
+/* ===== GRID BACKGROUND ===== */
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,0,120,0.05) 1px, transparent 1px);
+    background-size:50px 50px;
+    animation:moveGrid 8s linear infinite;
+    z-index:-2;
 }
 
-/* TABLE */
-table {
-    width: 95%;
-    margin: auto;
-    margin-top: 20px;
-    border-collapse: collapse;
-    background: #111;
-    border-radius: 10px;
-    overflow: hidden;
+@keyframes moveGrid{
+    from{transform:translateY(0);}
+    to{transform:translateY(50px);}
 }
 
-th, td {
-    padding: 12px;
-    border: 1px solid #222;
-    text-align: center;
+/* ===== GLOW ===== */
+body::after{
+    content:"";
+    position:fixed;
+    width:600px;
+    height:600px;
+    top:15%;
+    left:50%;
+    transform:translateX(-50%);
+    background:radial-gradient(circle, rgba(255,0,120,0.25), transparent 60%);
+    filter:blur(90px);
+    z-index:-1;
+    animation:pulse 5s infinite alternate;
 }
 
-th {
-    background: red;
+@keyframes pulse{
+    from{transform:translateX(-50%) scale(1); opacity:0.5;}
+    to{transform:translateX(-50%) scale(1.3); opacity:1;}
 }
 
-tr:hover {
-    background: #1a1a1a;
+/* ===== TITLE ===== */
+h1{
+    text-align:center;
+    margin-top:25px;
+    color:#00fff2;
+    text-shadow:0 0 12px #00fff2;
+    letter-spacing:2px;
 }
 
-/* STOCK */
-.low {
-    color: orange;
+/* ===== TABLE CONTAINER EFFECT ===== */
+table{
+    width:95%;
+    margin:30px auto;
+    border-collapse:collapse;
+    background:rgba(20,20,20,0.75);
+    backdrop-filter:blur(10px);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 25px rgba(255,0,120,0.15);
+    animation:fadeIn 0.6s ease;
 }
 
-.ok {
-    color: lime;
+/* ===== HEAD ===== */
+th{
+    background:linear-gradient(90deg,#ff0077,#ff2e93);
+    color:white;
+    padding:14px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-size:13px;
+}
+
+/* ===== CELLS ===== */
+td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    transition:0.2s;
+}
+
+tr:hover td{
+    background:rgba(255,0,120,0.08);
+    transform:scale(1.01);
+}
+
+/* ===== STOCK COLORS ===== */
+.low{
+    color:#ffb000;
+    font-weight:bold;
+    text-shadow:0 0 6px #ffb000;
+}
+
+.ok{
+    color:#00ff88;
+    font-weight:bold;
+    text-shadow:0 0 6px #00ff88;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:700px){
+    table{
+        font-size:12px;
+    }
+
+    th, td{
+        padding:8px;
+    }
 }
 </style>
 

@@ -111,115 +111,169 @@ $total = 0;
 <title>Facturation</title>
 
 <style>
+/* =========================
+   CYBERPUNK FACTURATION
+========================= */
 
-/* ================= BASE ================= */
 body {
     margin: 0;
-    font-family: Arial;
-    background: #000;
+    font-family: 'Segoe UI', sans-serif;
+    background: #050505;
     color: #fff;
 }
 
+/* ===== GRID BACKGROUND ===== */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+        linear-gradient(rgba(0,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,0,120,0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 8s linear infinite;
+    z-index: -2;
+}
+
+@keyframes gridMove {
+    from { transform: translateY(0); }
+    to { transform: translateY(50px); }
+}
+
+/* ===== GLOW ===== */
+body::after {
+    content: "";
+    position: fixed;
+    width: 650px;
+    height: 650px;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, rgba(255,0,120,0.25), transparent 60%);
+    filter: blur(100px);
+    z-index: -1;
+    animation: pulse 5s infinite alternate;
+}
+
+@keyframes pulse {
+    from { transform: translateX(-50%) scale(1); opacity: 0.5; }
+    to { transform: translateX(-50%) scale(1.3); opacity: 1; }
+}
+
+/* ===== CONTAINER ===== */
 .container {
     width: 650px;
-    margin: auto;
-    margin-top: 20px;
+    margin: 30px auto;
+    padding: 20px;
 }
 
-/* ================= TITRE ================= */
+/* ===== TITLE ===== */
 h1 {
     text-align: center;
-    color: red;
+    color: #00fff2;
+    text-shadow: 0 0 12px #00fff2;
+    letter-spacing: 2px;
 }
 
-/* ================= BLOCS ================= */
+/* ===== BOX ===== */
 .box {
-    background: #111;
-    border: 1px solid #222;
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid rgba(255, 0, 120, 0.2);
     padding: 15px;
-    margin-bottom: 12px;
-    border-radius: 10px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255,0,120,0.1);
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.5s ease;
 }
 
-/* ================= BUTTONS ================= */
+/* ===== BUTTONS ===== */
 button {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 8px;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 8px;
     font-weight: bold;
+    cursor: pointer;
+    transition: 0.25s;
 }
 
-/* COULEURS UNIQUES */
 .red {
-    background: red;
-    color: white;
+    background: linear-gradient(45deg, #ff003c, #ff0077);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(255,0,120,0.3);
 }
 
 .white {
-    background: white;
-    color: black;
+    background: #00fff2;
+    color: #000;
+    box-shadow: 0 0 15px rgba(0,255,242,0.3);
 }
 
 .dark {
     background: #111;
-    color: white;
-    border: 1px solid #333;
+    color: #fff;
+    border: 1px solid rgba(255,0,120,0.3);
 }
 
-/* ================= CAMERA ================= */
+button:hover {
+    transform: scale(1.03);
+}
+
+/* ===== VIDEO ===== */
 video {
     width: 100%;
     border-radius: 10px;
-    border: 2px solid red;
+    border: 2px solid #ff0077;
+    margin-top: 10px;
 }
 
-/* ================= TABLE ================= */
+/* ===== TABLE PANIER ===== */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-}
-
-td, th {
-    border: 1px solid #333;
-    padding: 10px;
-    text-align: center;
+    overflow: hidden;
+    border-radius: 10px;
 }
 
 th {
-    background: red;
+    background: linear-gradient(90deg, #ff0077, #ff2e93);
+    color: white;
+    padding: 10px;
 }
 
-/* ================= TICKET ================= */
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+tr:hover td {
+    background: rgba(255,0,120,0.08);
+}
+
+/* ===== TICKET ===== */
 .ticket {
-    background: white;
-    color: black;
+    background: #fff;
+    color: #000;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
 }
 
-/* PRINT CLEAN */
-@media print {
-
-    body * {
-        visibility: hidden;
-    }
-
-    .ticket, .ticket * {
-        visibility: visible;
-    }
-
-    .ticket {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-    }
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== RESPONSIVE ===== */
+@media (max-width: 700px) {
+    .container {
+        width: 95%;
+    }
+}
 </style>
 
 </head>
